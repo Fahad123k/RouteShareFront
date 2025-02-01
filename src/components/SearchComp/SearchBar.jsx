@@ -43,7 +43,7 @@ const SearchBar = () => {
   };
 
   const handleSuggestionClick = (suggestion, setInput, setSuggestions) => {
-    setInput(suggestion.title); // Corrected from suggestion.display_name
+    setInput(suggestion.title);
     setSuggestions([]);
   };
 
@@ -61,14 +61,14 @@ const SearchBar = () => {
         onSubmit={handleSubmit}
       >
         {/* Leave From */}
-        <div className="relative w-full sm:w-1/2 border-b border-gray-200">
-          <div className="inline-flex items-center">
+        <div className={`relative w-full sm:w-1/2 border-b border-gray-200 ${isLeaveFromFocused ? "bg-gray-200" : "bg-white"}`}>
+        <div className="inline-flex items-center ">
             <span className="inline-flex items-center px-3 text-sm text-gray-900">
               <FaRegCircleDot className="text-xl" />
             </span>
             <input
               type="text"
-              className="rounded-r-md text-gray-900 block w-full text-sm p-2.5"
+              className="rounded-r-md text-gray-900 block w-full text-sm p-2.5 focus:outline-none focus:ring-0 focus:border-none"
               placeholder="Leave from"
               value={leaveFrom}
               onChange={(e) => {
@@ -94,7 +94,9 @@ const SearchBar = () => {
                     )
                   }
                 >
-                  {suggestion.title} {/* Corrected from display_name */}
+                  <strong>{suggestion.title}</strong>
+                  <br />
+                  <small className="text-gray-500">{suggestion.address.label}</small>
                 </span>
               ))}
             </div>
@@ -104,13 +106,13 @@ const SearchBar = () => {
         <LiaExchangeAltSolid className="hidden sm:block text-[40px]" />
 
         {/* Going To */}
-        <div className="relative flex items-center border-b border-gray-200 w-full sm:w-1/2">
+        <div className={`relative flex items-center border-b border-gray-200 w-full sm:w-1/2 ${isGoingToFocused ? "bg-gray-200" : "bg-white"}`}>
           <span className="inline-flex items-center px-3 text-sm text-gray-900">
             <FaRegCircleDot className="text-xl" />
           </span>
           <input
             type="text"
-            className="rounded-r-md text-gray-900 block w-full text-sm p-2.5"
+            className="rounded-r-md text-gray-900 block w-full text-sm p-2.5 focus:outline-none focus:ring-0 focus:border-none"
             placeholder="Going to"
             value={goingTo}
             onChange={(e) => {
@@ -134,52 +136,57 @@ const SearchBar = () => {
                     )
                   }
                 >
-                  {suggestion.title} {/* Corrected from display_name */}
+                  <strong>{suggestion.title}</strong>
+                  <br />
+                  <small className="text-gray-500">{suggestion.address.label}</small>
                 </span>
               ))}
             </div>
+
           )}
-        </div>
 
-        {/* Date */}
-        <div className="flex items-center border-b border-gray-200 w-full sm:w-1/2">
-          <span className="inline-flex items-center px-3 text-sm text-gray-900">
-            <HiOutlineCalendarDateRange className="text-xl" />
-          </span>
-          <input
-            type="date"
-            className="rounded-r-md text-gray-900 block w-full text-sm p-2.5"
-            placeholder="Date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-          />
-        </div>
+       
 
-        {/* Size */}
-        <div className="flex items-center border-b border-gray-200 w-full sm:w-1/3">
-          <span className="inline-flex items-center px-3 text-sm text-gray-900 rounded-l-md">
-            <RiWeightLine className="text-xl" />
-          </span>
-          <select
-            className="rounded-r-md text-gray-900 block w-full text-sm p-2.5 bg-white focus:ring-blue-500 focus:border-blue-500"
-            value={size}
-            onChange={(e) => setSize(e.target.value)}
-          >
-            <option value="XM">Extra Small</option>
-            <option value="S">Small</option>
-            <option value="M">Medium</option>
-            <option value="L">Large</option>
-          </select>
+         
         </div>
+           {/* Date */}
+           <div className="flex items-center border-b border-gray-200 w-full sm:w-1/2">
+            <span className="inline-flex items-center px-3 text-sm text-gray-900">
+              <HiOutlineCalendarDateRange className="text-xl" />
+            </span>
+            <input
+              type="date"
+              className="rounded-r-md text-gray-900 block w-full text-sm p-2.5"
+              placeholder="Date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+            />
+          </div>
 
-        {/* Submit Button */}
-        <div className="w-full sm:w-1/2">
-          <input
-            type="submit"
-            className="rounded-b-lg md:rounded-r-lg block w-full text-white text-sm p-2.5 bg-black cursor-pointer"
-            value="Search"
-          />
-        </div>
+ {/* Size */}
+ <div className="flex items-center border-b border-gray-200 w-full sm:w-1/3">
+            <span className="inline-flex items-center px-3 text-sm text-gray-900 rounded-l-md">
+              <RiWeightLine className="text-xl" />
+            </span>
+            <select
+              className="rounded-r-md text-gray-900 block w-full text-sm p-2.5 bg-white focus:ring-blue-500 focus:border-blue-500"
+              value={size}
+              onChange={(e) => setSize(e.target.value)}
+            >
+              <option value="XM">Extra Small</option>
+              <option value="S">Small</option>
+              <option value="M">Medium</option>
+              <option value="L">Large</option>
+            </select>
+          </div>
+          {/* Submit Button */}
+          <div className="w-full sm:w-1/2">
+            <input
+              type="submit"
+              className="rounded-b-lg md:rounded-r-lg block w-full text-white text-sm p-2.5 bg-black cursor-pointer"
+              value="Search"
+            />
+          </div>
       </form>
     </div>
   );
