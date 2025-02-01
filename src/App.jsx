@@ -9,6 +9,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import About from './Pages/About'
 import SignUp from './Pages/SignUp'
 import Login from './Pages/Login'
+import Publish from './Pages/Publish'
 
 function App() {
 
@@ -24,6 +25,7 @@ function App() {
         <Route path="/about" element={<About />} /> 
         <Route path="/sign-up" element={<SignUp />} /> 
         <Route path="/login" element={<Login />} /> 
+        <Route path="/publish" element={<Publish />} /> 
 
       </Routes>
       <Footer />

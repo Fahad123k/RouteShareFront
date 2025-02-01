@@ -63,7 +63,7 @@ const Navbar = () => {
             </li>
             <li>
               <NavLink
-                to="#"
+                to="/publish"
                 className="block flex items-center text-center justify-around py-2 px-3  space-x-2 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 "
               >
 
