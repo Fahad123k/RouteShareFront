@@ -18,9 +18,12 @@ const Home = () => {
             alt="Banner"
             className="object-cover w-full h-full"
           />
-        <SearchBar/>
         </div>
+        <SearchBar/>
       </div>
+
+
+      
 
 
 
