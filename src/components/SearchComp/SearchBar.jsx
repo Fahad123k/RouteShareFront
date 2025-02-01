@@ -26,7 +26,8 @@ const SearchBar = () => {
         const response = await axios.get("https://geocode.maps.co/search", {
           params: {
             q: query,
-            api_key:import.meta.env.VITE_API_KEY
+            // api_key:import.meta.env.VITE_API_KEY
+            api_key:'679d20bc88803456582399lykb497d2'
           },
         });
         setSuggestions(response.data || []);
