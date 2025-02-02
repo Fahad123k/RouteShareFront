@@ -76,6 +76,7 @@ const Publish = () => {
     return (
         <div className="flex items-center justify-center  min-h-[calc(100vh-400px)]  ">
             <form className="w-full max-w-lg bg-white  rounded-lg shadow-md p-6" onSubmit={handleSubmit}>
+            <h3 className=" mb-4 uppercase m-auto tracking-wide font-bold ">Publish Your journey</h3>
                 {/* address row */}
                 <div className="flex flex-wrap -mx-3 mb-6">
                     <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
