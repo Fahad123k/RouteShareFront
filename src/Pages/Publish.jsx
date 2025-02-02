@@ -87,7 +87,7 @@ const Publish = () => {
                                 } rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white`}
                             id="firstName"
                             type="text"
-                            placeholder="Jane"
+                            placeholder="Delhi"
                             value={formData.firstName}
                             onChange={handleChange}
                         />
@@ -101,7 +101,7 @@ const Publish = () => {
                             className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
                             id="lastName"
                             type="text"
-                            placeholder="Doe"
+                            placeholder="Gurgaun"
                             value={formData.lastName}
                             onChange={handleChange}
                         />
