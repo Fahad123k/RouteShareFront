@@ -19,6 +19,8 @@ const Login = () => {
     const handleSubmit = async (e) => {
 
 
+        const BACKEND_API = import.meta.env.VITE_BACKEND_URL
+
         e.preventDefault();
         setError("")
 
@@ -26,7 +28,7 @@ const Login = () => {
 
         try {
 
-            const response = await axios.post('http://localhost:8000/user/login', { email, password });
+            const response = await axios.post(`${BACKEND_API}/user/login`, { email, password });
             console.log("resp - ", response)
             localStorage.setItem("token", response.data.token);
             localStorage.setItem("user", JSON.stringify(response.data.user));

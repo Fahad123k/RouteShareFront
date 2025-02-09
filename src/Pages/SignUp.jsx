@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const SignUp = () => {
@@ -9,6 +9,11 @@ const SignUp = () => {
         password: "",
         confirmPassword: "",
     });
+
+    const navigate = useNavigate()
+
+    const BACKEND_API = import.meta.env.VITE_BACKEND_URL;
+    console.log("backemd", BACKEND_API)
 
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -30,7 +35,7 @@ const SignUp = () => {
         setLoading(true);
 
         try {
-            const response = await axios.post("http://localhost:8000/user/register", {
+            const response = await axios.post(`${BACKEND_API}/user/register`, {
                 name: formData.name,
                 email: formData.email,
                 password: formData.password,
@@ -41,6 +46,7 @@ const SignUp = () => {
 
             setSuccess("Account created successfully!");
             setFormData({ name: "", email: "", password: "", confirmPassword: "" });
+            navigate('/login')
 
         } catch (error) {
             setError(error.response?.data?.message || "Something went wrong!");
