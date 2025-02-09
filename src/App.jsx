@@ -1,4 +1,4 @@
-import { useState } from 'react'
+
 
 // import './App.css'
 import Home from './components/Home'
@@ -20,12 +20,12 @@ function App() {
       <Routes>
 
 
-        <Route path="/" element={<Home />} /> 
+        <Route path="/" element={<Home />} />
         <Route path="/search" element={<Search />} />
-        <Route path="/about" element={<About />} /> 
-        <Route path="/sign-up" element={<SignUp />} /> 
-        <Route path="/login" element={<Login />} /> 
-        <Route path="/publish" element={<Publish />} /> 
+        <Route path="/about" element={<About />} />
+        <Route path="/sign-up" element={<SignUp />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/publish" element={<Publish />} />
 
       </Routes>
       <Footer />
