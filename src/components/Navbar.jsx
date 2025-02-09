@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 
 import { CiCirclePlus } from "react-icons/ci";
 import { FaCircleUser } from "react-icons/fa6";
@@ -13,6 +13,9 @@ import { FaTruckFast } from 'react-icons/fa6';
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const navigate = useNavigate()
+
+  const token = localStorage.getItem('token')
 
   return (
     <nav className="bg-white border-gray-200 sticky top-0 z-99  mb-2">
@@ -91,21 +94,40 @@ const Navbar = () => {
                       Profile
                     </NavLink>
                   </div>
+                  {!token && (
+                    <div>
+                      <div className="py-1  border-b border-gray-200">
+                        <NavLink
+                          to="/sign-up"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          Sign Up
+                        </NavLink>
+                      </div>
+
+                      <div className="py-1  border-b border-gray-200">
+                        <NavLink
+                          to="/login"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          Log In
+                        </NavLink>
+                      </div>
+                    </div>
+                  )}
+
+
                   <div className="py-1  border-b border-gray-200">
-                    <NavLink
-                      to="/sign-up"
+                    <button
+
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => {
+                        localStorage.removeItem('token')
+                        navigate('/')
+                      }}
                     >
-                      Sign Up
-                    </NavLink>
-                  </div>
-                  <div className="py-1  border-b border-gray-200">
-                    <NavLink
-                      to="/login"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      Log In
-                    </NavLink>
+                      Log Out
+                    </button>
                   </div>
                 </div>
               )}

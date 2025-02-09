@@ -10,6 +10,7 @@ import About from './Pages/About'
 import SignUp from './Pages/SignUp'
 import Login from './Pages/Login'
 import Publish from './Pages/Publish'
+import Profile from './Pages/Profile';
 
 function App() {
 
@@ -22,6 +23,7 @@ function App() {
 
         <Route path="/" element={<Home />} />
         <Route path="/search" element={<Search />} />
+        <Route path="/profile" element={<Profile />} />
         <Route path="/about" element={<About />} />
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
