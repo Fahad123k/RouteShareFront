@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
+// import { jwtDecode } from "jwt-decode";
 const Profile = () => {
     const [user, setUser] = useState(null);
     const navigate = useNavigate();
@@ -11,6 +11,7 @@ const Profile = () => {
             const userdata = localStorage.getItem("user");
             console.log("user data val", userdata);
             if (!token) {
+                // alert("Please login First")
                 navigate("/login");
                 return;
             }

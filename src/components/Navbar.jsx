@@ -86,14 +86,16 @@ const Navbar = () => {
 
               {isDropdownOpen && (
                 <div className="absolute right-0 z-50 mt-2 w-44 bg-white rounded-lg shadow-lg">
-                  <div className="py-1 border-b border-gray-200">
-                    <NavLink
-                      to="/profile"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      Profile
-                    </NavLink>
-                  </div>
+                  {token && (
+                    <div className="py-1 border-b border-gray-200">
+                      <NavLink
+                        to="/profile"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Profile
+                      </NavLink>
+                    </div>
+                  )}
                   {!token && (
                     <div>
                       <div className="py-1  border-b border-gray-200">
@@ -117,18 +119,20 @@ const Navbar = () => {
                   )}
 
 
-                  <div className="py-1  border-b border-gray-200">
-                    <button
+                  {token && (
+                    <div className="py-1  border-b border-gray-200">
+                      <button
 
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      onClick={() => {
-                        localStorage.removeItem('token')
-                        navigate('/')
-                      }}
-                    >
-                      Log Out
-                    </button>
-                  </div>
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => {
+                          localStorage.removeItem('token')
+                          navigate('/')
+                        }}
+                      >
+                        Log Out
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </li>
