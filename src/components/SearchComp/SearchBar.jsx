@@ -57,12 +57,12 @@ const SearchBar = () => {
   return (
     <div className="w-full max-w-7xl justify-center items-center m-auto">
       <form
-        className="flex flex-col lg:flex-row p-2 rounded-md shadow-md items-center justify-center gap-4 w-full bg-white border border-gray-200"
+        className="flex flex-col md:flex-row p-2 rounded-md shadow-md items-center justify-center gap-4 w-full bg-white border border-gray-200"
         onSubmit={handleSubmit}
       >
         {/* Leave From */}
         <div className={`relative w-full sm:w-1/2 border-b border-gray-200 ${isLeaveFromFocused ? "bg-gray-200" : "bg-white"}`}>
-        <div className="inline-flex items-center ">
+          <div className="inline-flex items-center ">
             <span className="inline-flex items-center px-3 text-sm text-gray-900">
               <FaRegCircleDot className="text-xl" />
             </span>
@@ -145,48 +145,48 @@ const SearchBar = () => {
 
           )}
 
-       
 
-         
+
+
         </div>
-           {/* Date */}
-           <div className="flex items-center border-b border-gray-200 w-full sm:w-1/2">
-            <span className="inline-flex items-center px-3 text-sm text-gray-900">
-              <HiOutlineCalendarDateRange className="text-xl" />
-            </span>
-            <input
-              type="date"
-              className="rounded-r-md text-gray-900 block w-full text-sm p-2.5"
-              placeholder="Date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-            />
-          </div>
+        {/* Date */}
+        <div className="flex items-center border-b border-gray-200 w-full sm:w-1/2">
+          <span className="inline-flex items-center px-3 text-sm text-gray-900">
+            <HiOutlineCalendarDateRange className="text-xl" />
+          </span>
+          <input
+            type="date"
+            className="rounded-r-md text-gray-900 block w-full text-sm p-2.5"
+            placeholder="Date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+          />
+        </div>
 
- {/* Size */}
- <div className="flex items-center border-b border-gray-200 w-full sm:w-1/3">
-            <span className="inline-flex items-center px-3 text-sm text-gray-900 rounded-l-md">
-              <RiWeightLine className="text-xl" />
-            </span>
-            <select
-              className="rounded-r-md text-gray-900 block w-full text-sm p-2.5 bg-white focus:ring-blue-500 focus:border-blue-500"
-              value={size}
-              onChange={(e) => setSize(e.target.value)}
-            >
-              <option value="XM">Extra Small</option>
-              <option value="S">Small</option>
-              <option value="M">Medium</option>
-              <option value="L">Large</option>
-            </select>
-          </div>
-          {/* Submit Button */}
-          <div className="w-full sm:w-1/2">
-            <input
-              type="submit"
-              className="rounded-b-lg md:rounded-r-lg block w-full text-white text-sm p-2.5 bg-black cursor-pointer"
-              value="Search"
-            />
-          </div>
+        {/* Size */}
+        <div className="flex items-center border-b border-gray-200 w-full sm:w-1/3">
+          <span className="inline-flex items-center px-3 text-sm text-gray-900 rounded-l-md">
+            <RiWeightLine className="text-xl" />
+          </span>
+          <select
+            className="rounded-r-md text-gray-900 block w-full text-sm p-2.5 bg-white focus:ring-blue-500 focus:border-blue-500"
+            value={size}
+            onChange={(e) => setSize(e.target.value)}
+          >
+            <option value="XM">Extra Small</option>
+            <option value="S">Small</option>
+            <option value="M">Medium</option>
+            <option value="L">Large</option>
+          </select>
+        </div>
+        {/* Submit Button */}
+        <div className="w-full sm:w-1/2">
+          <input
+            type="submit"
+            className="rounded-b-lg md:rounded-r-lg block w-full text-white text-sm p-2.5 bg-black cursor-pointer"
+            value="Search"
+          />
+        </div>
       </form>
     </div>
   );

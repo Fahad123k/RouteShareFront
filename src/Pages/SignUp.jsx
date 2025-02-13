@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useSnackbar } from "notistack";
 
 const SignUp = () => {
+    const { enqueueSnackbar } = useSnackbar();
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -28,6 +30,7 @@ const SignUp = () => {
 
         if (formData.password !== formData.confirmPassword) {
             setError("Passwords do not match!");
+            enqueueSnackbar(`Passwords do not match!"`, { variant: "error" });
             return;
         }
 
@@ -45,11 +48,13 @@ const SignUp = () => {
 
 
             setSuccess("Account created successfully!");
+            enqueueSnackbar("Account created successfully!", { variant: "success" });
             setFormData({ name: "", email: "", password: "", confirmPassword: "" });
             navigate('/login')
 
         } catch (error) {
             setError(error.response?.data?.message || "Something went wrong!");
+            enqueueSnackbar(error.response?.data?.message || "Something went wrong!", { variant: "error" });
         } finally {
             setLoading(false);
         }

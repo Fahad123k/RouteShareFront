@@ -1,11 +1,24 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useSnackbar } from "notistack";
 
 const Publish = () => {
+    const { enqueueSnackbar } = useSnackbar();
     const navigate = useNavigate();
+    useEffect(() => {
+
+        const token = localStorage.getItem('token');
+        if (!token) {
+
+            navigate('/login')
+        }
+    }, [])
+
+    const BACKEND_API = import.meta.env.VITE_BACKEND_URL
 
     const [formData, setFormData] = useState({
+        userId: "",
         leaveFrom: "",
         goingTo: "",
         date: "",
@@ -36,6 +49,7 @@ const Publish = () => {
                 setSuggestions((prev) => ({ ...prev, [field]: response.data.items || [] }));
             } catch (error) {
                 console.error("Error fetching suggestions:", error);
+                enqueueSnackbar("Error fetching suggestions:", error, { variant: "error" });
                 setSuggestions((prev) => ({ ...prev, [field]: [] }));
             }
         } else {
@@ -53,10 +67,73 @@ const Publish = () => {
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        navigate(`/search?${new URLSearchParams(formData).toString()}`);
+
+        try {
+            const token = localStorage.getItem("token");
+            const storedUser = JSON.parse(localStorage.getItem("user"));
+
+            // console.log("Stored Data:", storedUser?.id);
+            // console.log("Form Data:", formData);
+
+            if (!storedUser || !storedUser.id) {
+                console.error("User ID is missing!");
+                enqueueSnackbar("User ID is missing!", { variant: "error" });
+                return;
+            }
+
+            // Attach userId to formData before sending
+            const journeyData = { ...formData, userId: storedUser.id };
+
+            const response = await axios.post(`${BACKEND_API}/user/createjourney`, journeyData, {
+                headers: {
+                    Authorization: `Bearer ${token}`, // Send token in headers
+                    "Content-Type": "application/json",
+                },
+            });
+
+            // Ensure response is valid
+            if (!response || !response.status) {
+                enqueueSnackbar("No response from server!", { variant: "error" });
+                return;
+            }
+
+            // Handle different response statuses
+            if (response.status === 201) {
+                enqueueSnackbar("Journey Published Successfully!", { variant: "success" });
+                navigate("/search"); // Redirect after success
+            } else if (response.status === 400) {
+                enqueueSnackbar("Empty Fields. Please fill all required fields!", { variant: "error" });
+            } else {
+                enqueueSnackbar("Unexpected error occurred!", { variant: "error" });
+            }
+
+        } catch (error) {
+            console.error("Error publishing journey:", error);
+
+            if (error.response) {
+                // Handle server-side error response
+                enqueueSnackbar(error.response.data.message || "Server Error", { variant: "error" });
+            } else if (error.request) {
+                // Handle no response from server
+                enqueueSnackbar("No response from server!", { variant: "error" });
+            } else {
+                // Handle any other errors
+                enqueueSnackbar("Something went wrong!", { variant: "error" });
+            }
+        }
     };
+
+
+
+    useEffect(() => {
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+            const user = JSON.parse(storedUser);
+            setFormData((prev) => ({ ...prev, userId: user.id })); // Assuming user object has `_id`
+        }
+    }, []);
 
     const timeSlots = Array.from({ length: 24 }, (_, i) => {
         const hour = i % 12 || 12;

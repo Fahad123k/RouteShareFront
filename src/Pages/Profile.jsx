@@ -1,17 +1,25 @@
+import { useSnackbar } from "notistack";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 // import { jwtDecode } from "jwt-decode";
 const Profile = () => {
+    // enqueueSnackbar("You have been logged out!", { variant: "warning" });
+    const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+
     const [user, setUser] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchUser = () => {
             const token = localStorage.getItem("token");
-            const userdata = localStorage.getItem("user");
-            console.log("user data val", userdata);
+            const userdata = JSON.parse(localStorage.getItem("user"));
+            console.log("User data:", userdata);
+
+
+
             if (!token) {
                 // alert("Please login First")
+                enqueueSnackbar("Please Login!", { variant: "warning" });
                 navigate("/login");
                 return;
             }
@@ -19,13 +27,15 @@ const Profile = () => {
             try {
 
                 if (userdata) {
-                    setUser(JSON.parse(userdata)); // Convert string back to object
+                    setUser(userdata); // Convert string back to object
                 }
 
 
 
             } catch (error) {
                 console.error("Error decoding token:", error);
+                enqueueSnackbar("Error decoding token", { variant: "error" });
+
                 navigate("/login");
             }
         };
@@ -45,6 +55,16 @@ const Profile = () => {
                         className="mt-4 w-full bg-red-500 text-white py-2 rounded-lg"
                         onClick={() => {
                             localStorage.removeItem("token");
+                            enqueueSnackbar("You have been logged out!", {
+                                variant: "warning"
+                                ,
+                                action: (key) => (
+                                    <IconButton onClick={() => closeSnackbar(key)} size="small" style={{ color: "white" }}>
+                                        <CloseIcon fontSize="small" />
+                                    </IconButton>
+                                ),
+                            });
+
                             navigate("/login");
                         }}
                     >

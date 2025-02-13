@@ -1,8 +1,7 @@
-
 import axios from 'axios';
 import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router'
-
+import { useSnackbar } from "notistack";
 
 
 
@@ -12,6 +11,7 @@ const Login = () => {
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const { enqueueSnackbar } = useSnackbar();
     const [error, setError] = useState("");
 
     const navigate = useNavigate();
@@ -29,14 +29,23 @@ const Login = () => {
         try {
 
             const response = await axios.post(`${BACKEND_API}/user/login`, { email, password });
-            console.log("resp - ", response)
-            localStorage.setItem("token", response.data.token);
-            localStorage.setItem("user", JSON.stringify(response.data.user));
+            // console.log("resp - ", response)
+            if (response.data.success) {
+                enqueueSnackbar("Login successful!", { variant: "success" }); // ✅ Success Notification
+                localStorage.setItem("token", response.data.token);
+                localStorage.setItem("user", JSON.stringify(response.data.user));
+                navigate("/profile")
+            } else {
+                enqueueSnackbar("Invalid credentials!", { variant: "error" }); // ❌ Error Notification
+            }
 
-            alert("Login Successful");
-            navigate("/profile")
+
+
+
+
 
         } catch (error) {
+            enqueueSnackbar("Login failed. Please try again.", { variant: "error" }); // ❌ Error Notification
             setError(error.response?.data?.message || "Login failed");
         }
 

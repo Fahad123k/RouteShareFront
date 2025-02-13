@@ -8,11 +8,13 @@ import { IoIosSearch } from "react-icons/io";
 
 import { FaChevronDown } from "react-icons/fa";
 import { FaTruckFast } from 'react-icons/fa6';
+import { useSnackbar } from 'notistack';
 
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate()
 
   const token = localStorage.getItem('token')
@@ -85,7 +87,8 @@ const Navbar = () => {
               </button>
 
               {isDropdownOpen && (
-                <div className="absolute right-0 z-50 mt-2 w-44 bg-white rounded-lg shadow-lg">
+                <div className="absolute right-0 z-50 mt-2 w-44 bg-white rounded-lg shadow-lg"
+                  onClick={() => setIsDropdownOpen(false)}>
                   {token && (
                     <div className="py-1 border-b border-gray-200">
                       <NavLink
@@ -120,18 +123,22 @@ const Navbar = () => {
 
 
                   {token && (
-                    <div className="py-1  border-b border-gray-200">
+
+                    <div className="py-1  border-b border-gray-200 hover:bg-gray-100" >
                       <button
 
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        className="block px-4 py-2 text-sm text-gray-700 "
                         onClick={() => {
                           localStorage.removeItem('token')
+                          enqueueSnackbar("You have been logged out!", { variant: "warning" });
                           navigate('/')
                         }}
                       >
                         Log Out
                       </button>
                     </div>
+
+
                   )}
                 </div>
               )}
