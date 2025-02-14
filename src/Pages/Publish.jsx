@@ -19,8 +19,8 @@ const Publish = () => {
 
     const [formData, setFormData] = useState({
         userId: "",
-        leaveFrom: "",
-        goingTo: "",
+        leaveFrom: {},
+        goingTo: {},
         date: "",
         arrivalDate: "",
         departureTime: "",
@@ -29,6 +29,11 @@ const Publish = () => {
         fareStart: "",
         costPerKg: "",
     });
+
+    const [cityname, setCityName] = useState({
+        leaveFrom: "",
+        goingTo: ""
+    })
 
     const [suggestions, setSuggestions] = useState({
         leaveFrom: [],
@@ -46,6 +51,7 @@ const Publish = () => {
                 const response = await axios.get("https://geocode.search.hereapi.com/v1/geocode", {
                     params: { q: query, apiKey: import.meta.env.VITE_HERE_API_KEY },
                 });
+                console.log(response.data)
                 setSuggestions((prev) => ({ ...prev, [field]: response.data.items || [] }));
             } catch (error) {
                 console.error("Error fetching suggestions:", error);
@@ -58,7 +64,8 @@ const Publish = () => {
     };
 
     const handleSuggestionClick = (suggestion, field) => {
-        setFormData((prev) => ({ ...prev, [field]: suggestion.title }));
+        setFormData((prev) => ({ ...prev, [field]: suggestion.position }));
+        setCityName((prev) => ({ ...prev, [field]: suggestion.title }))
         setSuggestions((prev) => ({ ...prev, [field]: [] }));
     };
 
@@ -69,6 +76,17 @@ const Publish = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+
+        if (!formData.leaveFrom || !formData.leaveFrom.lat || !formData.leaveFrom.lng) {
+            enqueueSnackbar("Valid departure location is required", { variant: "error" });
+            return;
+        }
+
+        if (!formData.goingTo || !formData.goingTo.lat || !formData.goingTo.lng) {
+            enqueueSnackbar("Valid destination location is required", { variant: "error" });
+            return;
+        }
 
         try {
             const token = localStorage.getItem("token");
@@ -157,11 +175,17 @@ const Publish = () => {
                         </label>
                         <input
                             className="appearance-none block w-full bg-white text-gray-700 border rounded py-3 px-4 leading-tight outline-none focus:bg-gray-100"
-                            value={formData[field]}
+                            value={cityname[field] || ""}
                             placeholder={field === "leaveFrom" ? "Leave from" : "Going to"}
                             name={field}
                             onChange={(e) => {
-                                handleChange(e);
+                                // handleChange(e);
+                                const value = e.target.value;
+
+                                console.log(e.target.value);
+
+
+                                setCityName((prev) => ({ ...prev, [field]: value }));
                                 fetchSuggestions(e.target.value, field);
                             }}
                             onFocus={() => setFocused((prev) => ({ ...prev, [field]: true }))}
