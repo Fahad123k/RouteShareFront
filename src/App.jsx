@@ -11,6 +11,7 @@ import SignUp from './Pages/SignUp'
 import Login from './Pages/Login'
 import Publish from './Pages/Publish'
 import Profile from './Pages/Profile';
+import AllJourney from './Pages/AllJourney';
 
 function App() {
 
@@ -28,6 +29,7 @@ function App() {
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
         <Route path="/publish" element={<Publish />} />
+        <Route path="/all-journey" element={<AllJourney />} />
 
       </Routes>
       <Footer />

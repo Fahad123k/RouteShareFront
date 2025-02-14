@@ -3,14 +3,7 @@ import { BiUserCircle } from "react-icons/bi";
 import { FaRegCircle } from "react-icons/fa";
 import { LiaCarSideSolid } from "react-icons/lia";
 import { IoStarSharp } from "react-icons/io5";
-import { MdOutlinePedalBike } from "react-icons/md";
-import { CiDeliveryTruck } from "react-icons/ci";
-
-import { TbRoad } from "react-icons/tb";
 import { FaGripLinesVertical } from "react-icons/fa";
-
-
-
 
 
 
@@ -130,7 +123,7 @@ const TravelDetails = () => {
 
             <div className="flex-1 flex items-center justify-between ">
               <div className="flex-col mr-2">
-               
+
 
                 <p className="text-gray-800">{travel.departure.time}</p>
                 <p className="text-gray-400 text-sm">0h30</p>
@@ -139,10 +132,10 @@ const TravelDetails = () => {
               <div className="line m-2">
                 <FaRegCircle className="text-sm" />
                 <FaGripLinesVertical className="text-sm" />
-              
+
                 <FaRegCircle className="text-sm" />
               </div>
-              
+
               <div className="flex-col">
 
                 <p className="font-bold text-gray-700">{travel.departure.station}</p>

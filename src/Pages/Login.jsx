@@ -2,6 +2,8 @@ import axios from 'axios';
 import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router'
 import { useSnackbar } from "notistack";
+import ClipLoader from "react-spinners/ClipLoader";
+import BeatLoader from "react-spinners/BeatLoader";
 
 
 
@@ -13,41 +15,47 @@ const Login = () => {
     const [password, setPassword] = useState("");
     const { enqueueSnackbar } = useSnackbar();
     const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false)
 
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
 
 
+        setLoading(true)
         const BACKEND_API = import.meta.env.VITE_BACKEND_URL
 
         e.preventDefault();
         setError("")
 
-        console.log(email, "and ", password)
+        // console.log(email, "and ", password)
 
-        try {
+        setTimeout(async () => {
 
-            const response = await axios.post(`${BACKEND_API}/user/login`, { email, password });
-            // console.log("resp - ", response)
-            if (response.data.success) {
-                enqueueSnackbar("Login successful!", { variant: "success" }); // ✅ Success Notification
-                localStorage.setItem("token", response.data.token);
-                localStorage.setItem("user", JSON.stringify(response.data.user));
-                navigate("/profile")
-            } else {
-                enqueueSnackbar("Invalid credentials!", { variant: "error" }); // ❌ Error Notification
+            try {
+
+                const response = await axios.post(`${BACKEND_API}/user/login`, { email, password });
+                // console.log("resp - ", response)
+                if (response.data.success) {
+                    enqueueSnackbar("Login successful!", { variant: "success" }); // ✅ Success Notification
+                    setLoading(false)
+                    localStorage.setItem("token", response.data.token);
+                    localStorage.setItem("user", JSON.stringify(response.data.user));
+                    navigate("/profile")
+                } else {
+                    enqueueSnackbar("Invalid credentials!", { variant: "error" }); // ❌ Error Notification
+                    setLoading(false)
+                }
+
+
+            } catch (error) {
+                enqueueSnackbar("Login failed. Please try again.", { variant: "error" }); // ❌ Error Notification
+                setError(error.response?.data?.message || "Login failed");
+                setLoading(false)
             }
+        }, 2000)
 
 
-
-
-
-
-        } catch (error) {
-            enqueueSnackbar("Login failed. Please try again.", { variant: "error" }); // ❌ Error Notification
-            setError(error.response?.data?.message || "Login failed");
-        }
 
     }
 
@@ -93,8 +101,19 @@ const Login = () => {
                                 <a href="#" className="text-sm font-medium text-primary-600 hover:underline dark:text-primary-500">Forgot password?</a>
                             </div>
                             <button
-                                type="submit" className="w-full text-white bg-gray-800 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
-                                Sign in</button>
+                                type="submit" className="w-full text-white bg-gray-800 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                                disabled={loading}
+                            >
+                                {/* Sign in */}
+                                {loading ?
+                                    (<div>
+                                        <BeatLoader
+                                            color='white'
+                                            size={10}
+                                        />
+                                        <p>Signing In</p>
+                                    </div>) : 'Sign in'}
+                            </button>
                             <p className="text-sm font-light text-gray-500 dark:text-gray-400">
                                 Don’t have an account yet? <NavLink to="/sign-up" className="font-medium text-primary-600 hover:underline dark:text-primary-500">Sign up</NavLink>
                             </p>
@@ -102,7 +121,7 @@ const Login = () => {
                     </div>
                 </div>
             </div>
-        </section>
+        </section >
     )
 }
 
