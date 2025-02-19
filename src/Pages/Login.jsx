@@ -2,7 +2,7 @@ import axios from 'axios';
 import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router'
 import { useSnackbar } from "notistack";
-import ClipLoader from "react-spinners/ClipLoader";
+
 import BeatLoader from "react-spinners/BeatLoader";
 
 
