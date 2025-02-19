@@ -183,7 +183,7 @@ const SearchBar = () => {
         <div className="w-full sm:w-1/2">
           <input
             type="submit"
-            className="rounded-b-lg md:rounded-r-lg block w-full text-white text-sm p-2.5 bg-black cursor-pointer"
+            className="rounded-b-lg md:rounded-r-lg block w-full text-white text-sm p-2.5 bg-blue-900 cursor-pointer"
             value="Search"
           />
         </div>
