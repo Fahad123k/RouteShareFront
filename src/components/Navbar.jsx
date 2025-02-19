@@ -90,14 +90,26 @@ const Navbar = () => {
                 <div className="absolute right-0 z-50 mt-2 w-44 bg-white rounded-lg shadow-lg"
                   onClick={() => setIsDropdownOpen(false)}>
                   {token && (
-                    <div className="py-1 border-b border-gray-200">
-                      <NavLink
-                        to="/profile"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      >
-                        Profile
-                      </NavLink>
+                    <div>
+
+                      <div className="py-1 border-b border-gray-200">
+                        <NavLink
+                          to="/profile"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          Profile
+                        </NavLink>
+                      </div>
+                      <div className="py-1 border-b border-gray-200">
+                        <NavLink
+                          to="/all-journey"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          Journeys
+                        </NavLink>
+                      </div>
                     </div>
+
                   )}
                   {!token && (
                     <div>
