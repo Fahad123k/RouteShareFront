@@ -18,6 +18,7 @@ const AllJourney = () => {
     const BACKEND_API = import.meta.env.VITE_BACKEND_URL;
     console.log("backend", BACKEND_API)
 
+
     const AllTravel = async () => {
 
         try {
@@ -70,8 +71,8 @@ const AllJourney = () => {
                                 <div className="flex-col w-full">
 
                                     <p className="text-gray-500">{travel.departureTime}</p>
-                                    <p className="font-bold text-gray-800">Delhi</p>
-                                    {/* <p className="font-bold text-gray-800">{travel.leaveFrom.lat}</p> */}
+                                    {/* <p className="font-bold text-gray-800">Delhi</p> */}
+                                    <p className="font-bold text-gray-800">{travel.leaveFrom}</p>
                                 </div>
                                 <span className="w-full flex items-center m-2 ">
                                     <FaRegCircle className="text-xl" />
@@ -87,8 +88,8 @@ const AllJourney = () => {
                                 <div className="flex-col">
 
                                     <p className="text-gray-500">{travel.arrivalTime}</p>
-                                    <p className="font-bold text-gray-800">Gurgaoun</p>
-                                    {/* <p className="font-bold text-gray-800">{travel.goingTo.lat}</p> */}
+                                    {/* <p className="font-bold text-gray-800">Gurgaoun</p> */}
+                                    <p className="font-bold text-gray-800">{travel.goingTo}</p>
                                 </div>
 
                             </div>
