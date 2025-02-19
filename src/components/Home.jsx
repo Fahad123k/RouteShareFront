@@ -12,14 +12,23 @@ const Home = () => {
             bgImage={cover}
             bgImageAlt="cover"
             strength={300}
-            className=""
             bgImageStyle={{ objectFit: "cover", objectPosition: "center" }}
           >
-            <div className="h-[450px]"></div>
+            {/* Centering Content */}
+            <div className="h-[450px] flex flex-col items-center justify-center text-center text-white px-6">
+              <div className="bg-white/10 backdrop-blur-sm border border-white/30 rounded-xl p-8 shadow-lg">
+                <h1 className="text-3xl font-bold">Affordable Carpooling Parcel Service</h1>
+                <p className="mt-2 text-lg">Deliver parcels at the lowest cost with real-time route sharing.</p>
+                <button className="mt-4 px-6 py-2 bg-white text-blue-900 font-semibold rounded-full shadow-md hover:bg-blue-100 transition">
+                  Get Started
+                </button>
+              </div>
+            </div>
+
           </Parallax>
 
           {/* Overlaying SearchBar */}
-          <div className="absolute bottom-0 w-full flex justify-center translate-y-1/2 ">
+          <div className="absolute bottom-[-30px] w-full flex justify-center">
             <SearchBar />
           </div>
         </div>
