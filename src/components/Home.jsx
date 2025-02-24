@@ -2,6 +2,7 @@ import { Parallax } from "react-parallax";
 import cover from "../assets/cover2.jpg";
 import Features from "./Features";
 import SearchBar from "./SearchComp/SearchBar";
+import { NavLink } from "react-router";
 
 const Home = () => {
   return (
@@ -20,7 +21,10 @@ const Home = () => {
                 <h1 className="text-3xl font-bold">Affordable Carpooling Parcel Service</h1>
                 <p className="mt-2 text-lg">Deliver parcels at the lowest cost with real-time route sharing.</p>
                 <button className="mt-4 px-6 py-2 bg-white text-blue-900 font-semibold rounded-full shadow-md hover:bg-blue-100 transition">
-                  Get Started
+                  <NavLink to='/publish'>
+
+                    Get Started
+                  </NavLink>
                 </button>
               </div>
             </div>

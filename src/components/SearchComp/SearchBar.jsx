@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaRegCircleDot } from "react-icons/fa6";
 import { HiOutlineCalendarDateRange } from "react-icons/hi2";
 import { RiWeightLine } from "react-icons/ri";
@@ -12,6 +12,10 @@ const SearchBar = () => {
   const [goingTo, setGoingTo] = useState("");
   const [date, setDate] = useState("");
   const [size, setSize] = useState("M");
+
+  const [leaveFromGeo, setLeaveFromGeo] = useState(null)
+
+  const [goingToGeo, setGoingToGeo] = useState(null)
 
   const [leaveFromSuggestions, setLeaveFromSuggestions] = useState([]);
   const [goingToSuggestions, setGoingToSuggestions] = useState([]);
@@ -42,17 +46,41 @@ const SearchBar = () => {
     }
   };
 
-  const handleSuggestionClick = (suggestion, setInput, setSuggestions) => {
+  const handleSuggestionClick = (suggestion, setInput, setSuggestions, setGeo) => {
     setInput(suggestion.title);
-    setSuggestions([]);
+    // console.log(suggestion)
+    setGeo(prevGeo => {
+      console.log("Previous Geo:", prevGeo);
+      console.log("New Geo:", suggestion.position);
+      return suggestion.position;
+    });
+    setSuggestions([])
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    navigate(
-      `/search?leaveFrom=${leaveFrom}&goingTo=${goingTo}&date=${date}&size=${size}`
-    );
+
+    if (!leaveFrom || !goingTo) {
+      alert("Please enter both 'Leave From' and 'Going To' locations.");
+      return;
+    }
+    if (!leaveFromGeo || !goingToGeo) {
+      alert("Please enter both 'Leave From Geo' and 'Going To' locations Geo.");
+      return;
+    }
+
+    const queryParams = new URLSearchParams({
+      leaveFromLat: leaveFromGeo.lat,
+      leaveFromLng: leaveFromGeo.lng,
+      goingToLat: goingToGeo.lat,
+      goingToLng: goingToGeo.lng,
+      // date,
+      // size,
+    }).toString();
+
+    navigate(`/search?${queryParams}`);
   };
+
 
   return (
     <div className="w-full max-w-7xl justify-center items-center m-auto">
@@ -90,7 +118,8 @@ const SearchBar = () => {
                     handleSuggestionClick(
                       suggestion,
                       setLeaveFrom,
-                      setLeaveFromSuggestions
+                      setLeaveFromSuggestions,
+                      setLeaveFromGeo,
                     )
                   }
                 >
@@ -132,7 +161,8 @@ const SearchBar = () => {
                     handleSuggestionClick(
                       suggestion,
                       setGoingTo,
-                      setGoingToSuggestions
+                      setGoingToSuggestions,
+                      setGoingToGeo,
                     )
                   }
                 >
@@ -144,8 +174,6 @@ const SearchBar = () => {
             </div>
 
           )}
-
-
 
 
         </div>
@@ -160,6 +188,7 @@ const SearchBar = () => {
             placeholder="Date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
+            min={new Date().toISOString().split("T")[0]}
           />
         </div>
 
@@ -183,7 +212,7 @@ const SearchBar = () => {
         <div className="w-full sm:w-1/2">
           <input
             type="submit"
-            className="rounded-b-lg md:rounded-r-lg block w-full text-white text-sm p-2.5 bg-blue-900 cursor-pointer"
+            className="rounded-b-lg md:rounded-r-lg block w-full text-white text-sm p-2.5 bg-blue-900 cursor-pointer hover:bg-blue-600"
             value="Search"
           />
         </div>

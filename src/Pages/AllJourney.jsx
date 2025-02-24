@@ -101,7 +101,7 @@ const AllJourney = () => {
             setLoading(false);
             setTravels(response.data)
 
-            // console.log(travels)
+            console.log(travels)
 
 
         } catch (error) {
