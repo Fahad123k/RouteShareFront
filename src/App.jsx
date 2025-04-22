@@ -13,6 +13,7 @@ import Publish from './Pages/Publish'
 import Profile from './Pages/Profile';
 import AllJourney from './Pages/AllJourney';
 import ErrorPage from './Pages/ErrorPage';
+import Booking from './components/Booking';
 
 function App() {
 
@@ -31,6 +32,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/publish" element={<Publish />} />
         <Route path="/all-journey" element={<AllJourney />} />
+        <Route path='/booking' element={<Booking />} />
         <Route path="*" element={<ErrorPage />} />
 
       </Routes>
