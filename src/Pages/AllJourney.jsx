@@ -1,11 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { BiUserCircle } from "react-icons/bi";
-import { FaRegCircle } from "react-icons/fa";
-import { LiaCarSideSolid } from "react-icons/lia";
-import { IoStarSharp } from "react-icons/io5";
-import { FaGripLinesVertical } from "react-icons/fa";
+
 import FilterCard from "../components/SearchComp/FilterCard";
 import axios from "axios";
+import TravelCard from "../components/SearchComp/TravelCard";
 
 const SkeletonLoader = ({ rows = 5, height = "150px", width = "100%" }) => {
     return (
@@ -45,6 +42,46 @@ const SkeletonLoader = ({ rows = 5, height = "150px", width = "100%" }) => {
     );
 };
 
+// const formatMinutesToHours = (minutes) => {
+//     if (minutes === undefined || minutes === null || minutes === "") return 'N/A';
+
+//     // Convert string to number and handle potential NaN cases
+//     const mins = parseInt(minutes, 10);
+//     if (isNaN(mins)) return 'N/A';
+
+//     const hours = Math.floor(mins / 60);
+//     const remainingMins = mins % 60;
+//     return `${hours}h ${remainingMins}m`;
+// };
+
+// const calculateArrivalTime = (departureTime, arrivalMinutes) => {
+//     // Validate inputs
+//     if (!departureTime || !arrivalMinutes) return "N/A";
+
+//     // Convert minutes to number
+//     const mins = parseInt(arrivalMinutes, 10);
+//     if (isNaN(mins)) return "N/A";
+
+//     // Verify time format (HH:MM)
+//     const timeParts = departureTime.split(':');
+//     if (timeParts.length !== 2) return "N/A";
+
+//     const depHours = parseInt(timeParts[0], 10);
+//     const depMinutes = parseInt(timeParts[1], 10);
+
+//     if (isNaN(depHours) || isNaN(depMinutes)) return "N/A";
+
+//     // Calculate arrival time
+//     const totalMinutes = depHours * 60 + depMinutes + mins;
+//     let hours = Math.floor(totalMinutes / 60) % 24;
+//     const minutes = totalMinutes % 60;
+
+//     // Format to 12-hour with AM/PM
+//     const period = hours >= 12 ? 'PM' : 'AM';
+//     hours = hours % 12 || 12; // Convert 0 to 12
+
+//     return `${hours}:${minutes.toString().padStart(2, '0')} ${period}`;
+// };
 const AllJourney = () => {
     const [travels, setTravels] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -80,71 +117,14 @@ const AllJourney = () => {
                 <div className="mx-auto w-full max-w-4xl rounded-xl">
                     <h2 className="text-xl font-bold text-gray-800 mb-4">Travel Details</h2>
                     {error && <div className="text-red-500 mb-4">{error}</div>}
+
                     {loading ? (
                         <SkeletonLoader />
+                    ) : travels.length === 0 ? (
+                        <p className="text-center py-4">No journeys posted yet</p>
                     ) : (
                         travels.map((travel) => (
-                            <div
-                                key={travel._id || travel.id} // Use a unique identifier from your data
-                                className="flex flex-col shadow-lg hover:border-gray-300 rounded-lg md:mx-auto border border-gray-50"
-                            >
-                                <div className="hidden sm:flex justify-between items-center border-b border-gray-300 p-4 relative">
-                                    <div className="flex-1 flex items-center justify-between">
-                                        <div className="flex-col w-full">
-                                            <p className="text-gray-500">{travel.departureTime}</p>
-                                            <p className="font-bold text-gray-800">{travel.leaveFrom?.city || 'N/A'}</p>
-                                        </div>
-                                        <span className="w-full flex items-center m-2">
-                                            <FaRegCircle className="text-xl" />
-                                            <div className="line h-1 w-full bg-gray-600"></div>
-                                        </span>
-                                        <p>0h30</p>
-                                        <span className="w-full flex items-center m-2">
-                                            <div className="line h-1 w-full bg-gray-600"></div>
-                                            <FaRegCircle className="text-xl" />
-                                        </span>
-                                        <div className="flex-col">
-                                            <p className="text-gray-500">{travel.arrivalTime}</p>
-                                            <p className="font-bold text-gray-800">{travel.goingTo?.city || 'N/A'}</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex-1 text-right">
-                                        <p className="text-xl font-bold text-gray-800">{travel.fareStart}</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex sm:hidden justify-between items-center border-b border-gray-300 p-4 relative">
-                                    <div className="flex-1 flex items-center justify-between">
-                                        <div className="flex-col mr-2">
-                                            <p className="text-gray-800">{travel.departureTime}</p>
-                                            <p className="text-gray-400 text-sm">{travel.arrivalTime || 'N/A'}</p>
-                                        </div>
-                                        <div className="line m-2">
-                                            <FaRegCircle className="text-sm" />
-                                            <FaGripLinesVertical className="text-sm" />
-                                            <FaRegCircle className="text-sm" />
-                                        </div>
-                                        <div className="flex-col">
-                                            <p className="font-bold text-gray-700">{travel.goingTo?.lat || 'N/A'}</p>
-                                            <p className="font-bold text-gray-700">{travel.leaveFrom?.lat || 'N/A'}</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex-1 text-right">
-                                        <p className="text-xl font-bold text-gray-800">{travel.fareStart}</p>
-                                    </div>
-                                </div>
-
-                                <div className="p-4 flex items-center space-x-4">
-                                    <LiaCarSideSolid className="text-3xl" />
-                                    <p className="text-gray-600">{travel.departureTime}</p>
-                                    <BiUserCircle className="text-3xl" />
-                                    <p className="text-gray-600">{travel.username?.substring(0, 10) || 'Anonymous'}</p>
-                                    <p className="text-gray-600">Capacity: {travel.maxCapacity}</p>
-                                    <p className="text-gray-600 flex items-center">
-                                        <IoStarSharp className="mr-2" /> 4.4
-                                    </p>
-                                </div>
-                            </div>
+                            <TravelCard travel={travel} />
                         ))
                     )}
                 </div>

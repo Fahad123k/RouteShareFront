@@ -30,9 +30,6 @@ const Search = () => {
                 </div>
                 <TravelDetails />
 
-
-
-
             </div>
         </div>
     )
