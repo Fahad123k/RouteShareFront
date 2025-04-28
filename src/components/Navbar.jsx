@@ -120,6 +120,14 @@ const Navbar = () => {
                       </div>
                       <div className="py-1 border-b border-blue-200">
                         <NavLink
+                          to="/my-bookings"
+                          className="block px-4 py-2 text-sm text-blue-700 hover:bg-blue-100"
+                        >
+                          My Journey
+                        </NavLink>
+                      </div>
+                      <div className="py-1 border-b border-blue-200">
+                        <NavLink
                           to="/all-journey"
                           className="block px-4 py-2 text-sm text-blue-700 hover:bg-blue-100"
                         >

@@ -2,7 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { calculateArrivalTime } from '../utils/timeUtils';
 import axios from 'axios';
-import { split } from 'postcss/lib/list';
+import { IoMdStar } from 'react-icons/io';
 
 // Subcomponent: Loading Indicator
 const LoadingSpinner = () => (
@@ -47,7 +47,7 @@ const DetailItem = ({ label, value }) => (
 );
 
 // Subcomponent: Journey Header
-const JourneyHeader = ({ from, to, onBack }) => (
+const JourneyHeader = ({ from, to, onBack, user }) => (
     <>
         <button
             onClick={onBack}
@@ -64,6 +64,10 @@ const JourneyHeader = ({ from, to, onBack }) => (
                     {from || 'N/A'} to {to || 'N/A'}
                 </p>
             </div>
+            <div className='flex items-start m-1  p-2 uppercase'>
+                <p className='font-bold  text-gray-800'>{user}</p>
+            </div>
+
         </div>
     </>
 );
@@ -72,11 +76,23 @@ const JourneyHeader = ({ from, to, onBack }) => (
 const BookingFooter = ({ fare, onBook }) => (
     <div className="p-6 bg-gray-50 border-t">
         <div className="flex justify-between items-center">
+            <p className="flex justify-center items-center font-bold text-gray-900">
+                Rating: <div className='flex p-1'>
+                    < IoMdStar className='text-yellow-600' />
+                    < IoMdStar className='text-yellow-600' />
+                    < IoMdStar className='text-yellow-600' />
+                    < IoMdStar className='text-yellow-600' />
+                    < IoMdStar />
+                </div>
+
+
+            </p>
             <div>
                 <h3 className="font-medium text-gray-700">Total Fare</h3>
                 <p className="text-2xl font-bold text-gray-900">
                     {fare || '0.00'}
                 </p>
+
             </div>
             <button
                 onClick={onBook}
@@ -97,6 +113,7 @@ const ScheduleDetail = () => {
     const [error, setError] = useState(null);
     const BACKEND_API = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
     const token = localStorage.getItem('token');
+    console.log('token is', token)
 
     // const calculateArrivalTime = (departureTime, arrivalMinutes) => {
     //     if (!departureTime || !arrivalMinutes) return "N/A";
@@ -135,10 +152,10 @@ const ScheduleDetail = () => {
                     }
                 );
 
-                console.log("heelo response", response.data.data)
+                console.log("heelo response", response.data)
 
                 if (!response.data) throw new Error('Invalid response data');
-                setTravelDetails(response.data.data);
+                setTravelDetails(response.data);
             } catch (err) {
                 setError(
                     err.response?.data?.message ||
@@ -173,10 +190,15 @@ const ScheduleDetail = () => {
             <JourneyHeader
                 from={travelDetails.leaveFrom?.coordinates}
                 to={travelDetails.goingTo?.coordinates}
+                user={travelDetails.userId.name}
                 onBack={() => navigate(-1)}
             />
 
+
             <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+
+
+                {/* <DetailItem label="User" value={travelDetails.userId.name} /> */}
                 <DetailItem label="Departure Time" value={travelDetails.departureTime} />
                 <DetailItem
                     label="Arrival Time"
