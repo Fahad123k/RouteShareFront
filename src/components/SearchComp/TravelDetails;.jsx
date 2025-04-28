@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { BiUserCircle } from "react-icons/bi";
-import { FaRegCircle } from "react-icons/fa";
-import { LiaCarSideSolid } from "react-icons/lia";
-import { IoStarSharp } from "react-icons/io5";
-import { FaGripLinesVertical } from "react-icons/fa";
-import { useLocation } from "react-router-dom";
+
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useSnackbar } from 'notistack';
 import TravelCard from "./TravelCard";
@@ -12,8 +8,7 @@ import TravelCard from "./TravelCard";
 const TravelDetails = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
-  const leaveFrom = queryParams.get("leaveFrom");
-  const goingTo = queryParams.get("goingTo");
+  const navigate = useNavigate();
 
   const [searchResult, setSearchResult] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -81,7 +76,13 @@ const TravelDetails = () => {
         </div>
       ) : (
         searchResult.map((travel, index) => (
-          <TravelCard travel={travel} key={index} />
+          <div
+            key={travel._id}
+            onClick={() => navigate(`/schedule-details/${travel._id}`)}
+            className="cursor-pointer hover:bg-gray-50 transition-colors"
+          >
+            <TravelCard travel={travel} />
+          </div>
         ))
       )}
     </div>

@@ -94,6 +94,8 @@ const AllJourney = () => {
             setLoading(true);
             setError(null);
             const response = await axios.get(`${BACKEND_API}/user/all-journey`);
+
+            console.log("all journeys", response.data)
             setTravels(response.data);
         } catch (error) {
             setError("Failed to load journeys. Please try again later.");

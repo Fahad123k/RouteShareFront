@@ -14,6 +14,8 @@ import Profile from './Pages/Profile';
 import AllJourney from './Pages/AllJourney';
 import ErrorPage from './Pages/ErrorPage';
 import Booking from './components/Booking';
+import SceduleDetail from './Pages/SceduleDetail';
+import ScheduleDetails from './Pages/SceduleDetail';
 
 function App() {
 
@@ -33,6 +35,7 @@ function App() {
         <Route path="/publish" element={<Publish />} />
         <Route path="/all-journey" element={<AllJourney />} />
         <Route path='/booking' element={<Booking />} />
+        <Route path='/schedule-details/:id' element={<ScheduleDetails />} />
         <Route path="*" element={<ErrorPage />} />
 
       </Routes>
