@@ -51,6 +51,7 @@ const Profile = () => {
                 <div className="mt-4">
                     <p><strong>Name:</strong> {user.name}</p>
                     <p><strong>Email:</strong> {user.email}</p>
+                    <p><strong>Number:</strong> {user.number}</p>
                     <button
                         className="mt-4 w-full bg-red-500 text-white py-2 rounded-lg"
                         onClick={() => {

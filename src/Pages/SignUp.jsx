@@ -8,6 +8,7 @@ const SignUp = () => {
     const [formData, setFormData] = useState({
         name: "",
         email: "",
+        number: '',
         password: "",
         confirmPassword: "",
     });
@@ -37,10 +38,14 @@ const SignUp = () => {
         setError(null);
         setLoading(true);
 
+        console.log(formData)
+
+
         try {
             const response = await axios.post(`${BACKEND_API}/user/register`, {
                 name: formData.name,
                 email: formData.email,
+                number: formData.number,
                 password: formData.password,
             });
 
@@ -49,7 +54,7 @@ const SignUp = () => {
 
             setSuccess("Account created successfully!");
             enqueueSnackbar("Account created successfully!", { variant: "success" });
-            setFormData({ name: "", email: "", password: "", confirmPassword: "" });
+            setFormData({ name: "", email: "", number: "", password: "", confirmPassword: "" });
             navigate('/login')
 
         } catch (error) {
@@ -82,6 +87,11 @@ const SignUp = () => {
                             <div>
                                 <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your email</label>
                                 <input type="email" name="email" id="email" value={formData.email} onChange={handleChange}
+                                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-2.5 dark:bg-gray-700 dark:text-white" required />
+                            </div>
+                            <div>
+                                <label htmlFor="number" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your Number</label>
+                                <input type="number" name="number" id="number" value={formData.number} onChange={handleChange}
                                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-2.5 dark:bg-gray-700 dark:text-white" required />
                             </div>
                             <div>
