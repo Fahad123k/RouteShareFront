@@ -17,6 +17,9 @@ import Booking from './Pages/Booking';
 import SceduleDetail from './Pages/SceduleDetail';
 import ScheduleDetails from './Pages/SceduleDetail';
 import MyBookings from './Pages/MyBookings';
+import AdminDashboard from './Pages/Admin';
+import Admin from './Pages/Admin';
+
 
 function App() {
 
@@ -38,6 +41,8 @@ function App() {
         <Route path='/booking' element={<Booking />} />
         <Route path='/my-bookings' element={<MyBookings />} />
         <Route path='/schedule-details/:id' element={<ScheduleDetails />} />
+        <Route path='/admin' element={<Admin />} />
+
         <Route path="*" element={<ErrorPage />} />
 
       </Routes>
