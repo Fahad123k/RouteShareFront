@@ -16,10 +16,10 @@ const Home = () => {
             bgImageStyle={{ objectFit: "cover", objectPosition: "center" }}
           >
             {/* Centering Content */}
-            <div className="h-[450px] flex flex-col items-center justify-center text-center text-white px-6">
+            <div className="h-[350px] flex flex-col items-center justify-center text-center text-white px-6">
               <div className="bg-white/10 backdrop-blur-sm border border-white/30 rounded-xl p-8 shadow-lg">
-                <h1 className="text-3xl font-bold">Affordable Carpooling Parcel Service</h1>
-                <p className="mt-2 text-lg">Deliver parcels at the lowest cost with real-time route sharing.</p>
+                <h1 className="text-sm sm:text-3xl font-bold">Affordable Carpooling Parcel Service</h1>
+                <p className="mt-2 text-sm  sm:text-lg">Deliver parcels at the lowest cost with real-time route sharing.</p>
                 <button className="mt-4 px-6 py-2 bg-white text-blue-900 font-semibold rounded-full shadow-md hover:bg-blue-100 transition">
                   <NavLink to='/publish'>
 
@@ -29,16 +29,18 @@ const Home = () => {
               </div>
             </div>
 
+
           </Parallax>
 
-          {/* Overlaying SearchBar */}
-          <div className="absolute bottom-[-30px] w-full flex justify-center">
-            <SearchBar />
-          </div>
+
+
         </div>
       </div>
 
-      <div className="mt-50 sm:mt-20">
+      <div className="mt-[-20px] z-50">
+
+        <SearchBar />
+
         <Features />
       </div>
     </>

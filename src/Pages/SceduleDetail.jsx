@@ -76,7 +76,7 @@ const JourneyHeader = ({ from, to, onBack, user }) => (
 const BookingFooter = ({ fare, onBook }) => (
     <div className="p-6 bg-gray-50 border-t">
         <div className="flex justify-between items-center">
-            <p className="flex justify-center items-center font-bold text-gray-900">
+            <div className="flex justify-center items-center font-bold text-gray-900">
                 Rating: <div className='flex p-1'>
                     < IoMdStar className='text-yellow-600' />
                     < IoMdStar className='text-yellow-600' />
@@ -86,7 +86,7 @@ const BookingFooter = ({ fare, onBook }) => (
                 </div>
 
 
-            </p>
+            </div>
             <div>
                 <h3 className="font-medium text-gray-700">Total Fare</h3>
                 <p className="text-2xl font-bold text-gray-900">

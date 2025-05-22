@@ -43,7 +43,7 @@ const Features = () => {
 
   return (
     <>
-      <div className="w-full p-4 text-center">
+      <div className="w-full p-4 text-center mt-3">
         {/* Enhanced Heading Design */}
         <h6 className="text-3xl font-bold text-gray-800 relative inline-block">
           Why RouteShare ?
