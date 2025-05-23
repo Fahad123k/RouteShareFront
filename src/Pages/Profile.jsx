@@ -18,6 +18,7 @@ const Profile = () => {
         const fetchUser = () => {
             const token = localStorage.getItem("token");
             const userdata = JSON.parse(localStorage.getItem("user"));
+            console.log("user data", userdata)
             if (!token) {
                 enqueueSnackbar("Please Login!", { variant: "warning" });
                 navigate("/login");
@@ -159,8 +160,8 @@ const Profile = () => {
 
                     <div>
                         <label className="font-semibold">Verified:</label>
-                        <p className={`text-sm font-medium ${user.idVerified ? "text-green-600" : "text-red-600"}`}>
-                            {user.idVerified ? "Verified" : "Not verified"}
+                        <p className={`text-sm font-medium ${user.isVerified ? "text-green-600" : "text-red-600"}`}>
+                            {user.isVerified ? "Verified" : "Not verified"}
                         </p>
                     </div>
 
