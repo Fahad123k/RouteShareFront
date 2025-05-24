@@ -1,8 +1,10 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { calculateArrivalTime } from '../utils/timeUtils';
+import StarIcon from '@mui/icons-material/Star';
+import StarBorderIcon from '@mui/icons-material/StarBorder';
 import axios from 'axios';
-import { IoMdStar } from 'react-icons/io';
+// import { IoMdStar } from 'react-icons/io';
 
 // Subcomponent: Loading Indicator
 const LoadingSpinner = () => (
@@ -59,30 +61,37 @@ const JourneyHeader = ({ from, to, onBack, user }) => (
 
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
             <div className="p-6 border-b">
-                <h1 className="text-2xl font-bold text-gray-800">Journey Details</h1>
-                <p className="text-gray-600 mt-1">
-                    {from || 'N/A'} to {to || 'N/A'}
+                <h1 className="text-2xl font-bold text-gray-800 mb-4">Journey Details</h1>
+                <div className='flex items-start  uppercase'>
+                    <p className='font-bold  text-gray-800 text-sm'>Driver: {user}</p>
+                </div>
+                <p className="text-gray-600 mt-1 flex flex-col">
+                    <p className='text-gray-400 font-semibold text-sm'>   {from || 'N/A'} </p>
+                    <p>To</p>
+                    <p className='text-gray-400 font-semibold text-sm'>{to || 'N/A'}</p>
+
                 </p>
             </div>
-            <div className='flex items-start m-1  p-2 uppercase'>
-                <p className='font-bold  text-gray-800'>{user}</p>
-            </div>
+
 
         </div>
     </>
 );
 
 // Subcomponent: Booking Footer
-const BookingFooter = ({ fare, onBook }) => (
+const BookingFooter = ({ fare, onBook, rating }) => (
     <div className="p-6 bg-gray-50 border-t">
         <div className="flex justify-between items-center">
             <div className="flex justify-center items-center font-bold text-gray-900">
-                Rating: <div className='flex p-1'>
-                    < IoMdStar className='text-yellow-600' />
-                    < IoMdStar className='text-yellow-600' />
-                    < IoMdStar className='text-yellow-600' />
-                    < IoMdStar className='text-yellow-600' />
-                    < IoMdStar />
+                Rating:
+                <div className="flex pl-2">
+                    {Array.from({ length: 5 }, (_, index) =>
+                        index < Math.round(rating) ? (
+                            <StarIcon key={index} className="text-yellow-600" />
+                        ) : (
+                            <StarBorderIcon key={index} className="text-yellow-400" />
+                        )
+                    )}
                 </div>
 
 
@@ -115,21 +124,7 @@ const ScheduleDetail = () => {
     const token = localStorage.getItem('token');
     console.log('token is', token)
 
-    // const calculateArrivalTime = (departureTime, arrivalMinutes) => {
-    //     if (!departureTime || !arrivalMinutes) return "N/A";
 
-    //     const mins = parseInt(arrivalMinutes, 10);
-    //     if (isNaN(mins)) return "N/A";
-
-    //     const [hours, minutes] = departureTime.split(':').map(Number);
-    //     if (isNaN(hours) || isNaN(minutes)) return "N/A";
-
-    //     const totalMinutes = hours * 60 + minutes + mins;
-    //     const arrivalHours = Math.floor(totalMinutes / 60) % 24;
-    //     const arrivalMins = totalMinutes % 60;
-
-    //     return `${arrivalHours % 12 || 12}:${arrivalMins.toString().padStart(2, '0')} ${arrivalHours >= 12 ? 'PM' : 'AM'}`;
-    // };
 
     // Authentication check
     useEffect(() => {
@@ -145,14 +140,14 @@ const ScheduleDetail = () => {
                 if (!id) throw new Error('Missing journey ID');
 
                 const response = await axios.get(
-                    `${BACKEND_API}/user/get-journeyby-id/${id}`,
+                    `${BACKEND_API}/user/journey/${id}`,
                     {
                         headers: { Authorization: `Bearer ${token}` },
                         timeout: 10000 // 10 second timeout
                     }
                 );
 
-                console.log("heelo response", response.data)
+                console.log("Journey Response", response.data)
 
                 if (!response.data) throw new Error('Invalid response data');
                 setTravelDetails(response.data);
@@ -188,8 +183,8 @@ const ScheduleDetail = () => {
     return (
         <div className="container mx-auto p-4 max-w-4xl">
             <JourneyHeader
-                from={travelDetails.leaveFrom?.coordinates}
-                to={travelDetails.goingTo?.coordinates}
+                from={travelDetails.leaveFrom.label}
+                to={travelDetails.goingTo.label}
                 user={travelDetails.userId.name}
                 onBack={() => navigate(-1)}
             />
@@ -234,6 +229,7 @@ const ScheduleDetail = () => {
             <BookingFooter
                 fare={travelDetails.fareStart}
                 onBook={() => navigate('/booking', { state: { travelDetails } })}
+                rating={travelDetails.userId.rating}
             />
         </div>
     );
