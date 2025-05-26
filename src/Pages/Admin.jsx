@@ -51,6 +51,8 @@ const Admin = () => {
             navigate('/login');  // Redirect if no token
         }
     }, [navigate]);  // Add navigate to dependency array
+
+
     const api = {
         updateUser: async (userId, updates) => {
             setIsLoading(true);
