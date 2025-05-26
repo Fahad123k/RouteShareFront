@@ -14,6 +14,9 @@ const Booking = () => {
 
     // Initialize socket connection
     useEffect(() => {
+
+
+
         const newSocket = io('http://localhost:8000', {
             withCredentials: true,
             autoConnect: false
@@ -49,6 +52,7 @@ const Booking = () => {
             socket.off('booking-error');
         };
     }, [socket, enqueueSnackbar]);
+    // console.log("travel de", travelDetails);
 
     if (!travelDetails) {
         return (
@@ -165,6 +169,7 @@ const Booking = () => {
                 >
                     {isBooking ? 'Processing...' : 'Confirm Booking'}
                 </button>
+
             </div>
         </div>
     );

@@ -2,9 +2,12 @@ import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
+
 import socket from '../socket'; // Ensure proper socket import
 
 const MyBookings = () => {
+    const { enqueueSnackbar } = useSnackbar();
+
     const [activeTab, setActiveTab] = useState('myBookings');
     const [bookings, setBookings] = useState({
         myBookings: [],
@@ -15,7 +18,7 @@ const MyBookings = () => {
         requestsReceived: true
     });
     const [socketConnected, setSocketConnected] = useState(false);
-    const { enqueueSnackbar } = useSnackbar();
+
     const navigate = useNavigate();
     const BACKEND_API = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
 
@@ -36,6 +39,7 @@ const MyBookings = () => {
                 headers: { Authorization: `Bearer ${token}` },
                 timeout: 10000
             });
+            console.log("my bookin data", response)
 
             setBookings(prev => ({
                 ...prev,
@@ -57,12 +61,32 @@ const MyBookings = () => {
     }, [BACKEND_API, enqueueSnackbar, navigate]);
 
     // Socket event handlers
+    // Update the socket event handlers in the main component
     const setupSocketListeners = useCallback(() => {
         if (!socket) return;
+
+
+        // Add this to the setupSocketListeners function
+        const onRefreshData = () => {
+            enqueueSnackbar('Refreshing data...', { variant: 'info' });
+            fetchBookings('myBookings');
+            fetchBookings('requestsReceived');
+        };
+
+        socket.on('refresh-data', onRefreshData);
+
+        // Don't forget to clean it up
+        return () => {
+            // ... other cleanups
+            socket.off('refresh-data', onRefreshData);
+        };
 
         const onConnect = () => {
             setSocketConnected(true);
             console.log('Socket connected');
+            // Re-fetch data when reconnected
+            fetchBookings('myBookings');
+            fetchBookings('requestsReceived');
         };
 
         const onDisconnect = () => {
@@ -71,7 +95,7 @@ const MyBookings = () => {
         };
 
         const onRequestReceived = (newRequest) => {
-            enqueueSnackbar(`New booking request from ${newRequest.user?.name || 'traveler'}`, {
+            enqueueSnackbar(`New booking request received`, {
                 variant: 'info',
                 action: (key) => (
                     <button
@@ -85,6 +109,7 @@ const MyBookings = () => {
                     </button>
                 )
             });
+
             setBookings(prev => ({
                 ...prev,
                 requestsReceived: [newRequest, ...prev.requestsReceived]
@@ -95,7 +120,8 @@ const MyBookings = () => {
             const statusMessages = {
                 accepted: { msg: 'Booking accepted!', variant: 'success' },
                 rejected: { msg: 'Booking declined', variant: 'warning' },
-                cancelled: { msg: 'Booking cancelled', variant: 'error' }
+                cancelled: { msg: 'Booking cancelled', variant: 'error' },
+                completed: { msg: 'Journey completed', variant: 'success' }
             };
 
             if (statusMessages[updatedBooking.status]) {
@@ -105,10 +131,10 @@ const MyBookings = () => {
 
             setBookings(prev => ({
                 myBookings: prev.myBookings.map(b =>
-                    b._id === updatedBooking._id ? { ...b, ...updatedBooking } : b
+                    b._id === updatedBooking._id ? updatedBooking : b
                 ),
-                requestsReceived: prev.requestsReceived.map(b =>
-                    b._id === updatedBooking._id ? { ...b, ...updatedBooking } : b
+                requestsReceived: prev.requestsReceived.filter(b =>
+                    b._id !== updatedBooking._id
                 )
             }));
         };
@@ -124,8 +150,7 @@ const MyBookings = () => {
             socket.off('booking-request', onRequestReceived);
             socket.off('booking-update', onBookingUpdate);
         };
-    }, [enqueueSnackbar]);
-
+    }, [enqueueSnackbar, fetchBookings]);
     // Initial data fetch and socket setup
     useEffect(() => {
         fetchBookings('myBookings');
@@ -150,45 +175,61 @@ const MyBookings = () => {
             }
 
             // Optimistic update
-            setBookings(prev => ({
-                ...prev,
-                requestsReceived: prev.requestsReceived.map(b =>
+            setBookings(prev => {
+                const updatedRequests = prev.requestsReceived.map(b =>
                     b._id === bookingId ? { ...b, status, isUpdating: true } : b
-                )
-            }));
+                );
+
+                // If accepting, move to myBookings
+                if (status === 'accepted') {
+                    const acceptedBooking = updatedRequests.find(b => b._id === bookingId);
+                    return {
+                        myBookings: acceptedBooking ? [acceptedBooking, ...prev.myBookings] : prev.myBookings,
+                        requestsReceived: updatedRequests.filter(b => b._id !== bookingId)
+                    };
+                }
+
+                return {
+                    ...prev,
+                    requestsReceived: updatedRequests
+                };
+            });
 
             const response = await axios.patch(
                 `${BACKEND_API}/booking/${bookingId}/status`,
                 { status },
                 {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { Authorization: `Bearer ${token}` },
                     timeout: 8000
                 }
             );
 
-            // Update with server response
-            setBookings(prev => ({
-                ...prev,
-                requestsReceived: prev.requestsReceived.map(b =>
-                    b._id === bookingId ? { ...response.data, isUpdating: false } : b
-                )
-            }));
+            // Final update with server data
+            setBookings(prev => {
+                if (status === 'accepted') {
+                    return {
+                        myBookings: prev.myBookings.map(b =>
+                            b._id === bookingId ? response.data : b
+                        ),
+                        requestsReceived: prev.requestsReceived
+                    };
+                }
+                return {
+                    ...prev,
+                    requestsReceived: prev.requestsReceived.map(b =>
+                        b._id === bookingId ? response.data : b
+                    )
+                };
+            });
 
             enqueueSnackbar(`Booking ${status} successfully`, { variant: 'success' });
 
-            // Notify the other user
-            const booking = bookings.requestsReceived.find(b => b._id === bookingId);
-            if (booking) {
-                socket.emit('booking-status-update', {
-                    bookingId,
-                    status,
-                    userId: booking.userId,
-                    journeyId: booking.journeyId
-                });
-            }
+            // Notify the other user via socket
+            socket.emit('booking-status-update', {
+                bookingId,
+                status,
+                userId: isReceivedRequests ? booking.passenger._id : booking.driver._id
+            });
         } catch (error) {
             // Revert optimistic update
             setBookings(prev => ({
@@ -198,14 +239,12 @@ const MyBookings = () => {
                 )
             }));
 
-            const errorMessage = error.response?.data?.message ||
-                error.message ||
-                'Failed to update booking status';
-
-            enqueueSnackbar(errorMessage, { variant: 'error' });
+            enqueueSnackbar(
+                error.response?.data?.message || 'Failed to update booking status',
+                { variant: 'error' }
+            );
         }
     };
-
     // Refresh data function
     const refreshData = (tab) => {
         setLoading(prev => ({ ...prev, [tab]: true }));
@@ -245,8 +284,8 @@ const MyBookings = () => {
                 {tabs.map(tab => (
                     <button
                         key={tab.id}
-                        className={`px-6 py-3 rounded-lg font-medium transition-all ${activeTab === tab.id
-                            ? 'bg-blue-600 text-white shadow-md'
+                        className={`px-5 py-3 rounded-lg font-medium transition-all ${activeTab === tab.id
+                            ? 'bg-blue-400 text-white shadow-md'
                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                             }`}
                         onClick={() => setActiveTab(tab.id)}
@@ -389,6 +428,7 @@ const BookingList = ({ bookings, loading, type, onRefresh, onStatusChange, navig
 
 // Subcomponent for individual booking rows
 const BookingRow = ({ booking, isReceivedRequests, onStatusChange, navigate }) => {
+    const { enqueueSnackbar } = useSnackbar();
     const statusColors = {
         pending: 'bg-yellow-100 text-yellow-800',
         accepted: 'bg-green-100 text-green-800',
@@ -398,19 +438,36 @@ const BookingRow = ({ booking, isReceivedRequests, onStatusChange, navigate }) =
 
     return (
         <tr key={booking._id} className="hover:bg-gray-50">
-            {/* Passenger Column (only for received requests) */}
-            {isReceivedRequests && (
+
+            {/* In BookingRow component, replace the passenger section with: */}
+            {isReceivedRequests ? (
                 <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                         <div className="flex-shrink-0 h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                            {booking.user?.name?.charAt(0) || 'U'}
+                            {booking.passenger?.name?.charAt(0) || 'P'}
                         </div>
                         <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900">
-                                {booking.user?.name || 'User'}
+                                {booking.passenger?.name || 'Passenger'}
                             </div>
                             <div className="text-sm text-gray-500">
-                                {booking.user?.email || ''}
+                                {booking.passenger?.email || ''}
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            ) : (
+                <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                        <div className="flex-shrink-0 h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                            {booking.driver?.name?.charAt(0) || 'D'}
+                        </div>
+                        <div className="ml-4">
+                            <div className="text-sm font-medium text-gray-900">
+                                {booking.driver?.name || 'Driver'}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                                {booking.driver?.email || ''}
                             </div>
                         </div>
                     </div>
@@ -457,9 +514,56 @@ const BookingRow = ({ booking, isReceivedRequests, onStatusChange, navigate }) =
                         </button>
                     </div>
                 )}
+
                 <button
-                    onClick={() => navigate(`/chat/${isReceivedRequests ? booking.user?._id : booking.journey?.userId}`)}
-                    className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    onClick={() => {
+                        const loggedInUserId = localStorage.getItem('userId');
+
+                        // Check if essential data exists
+                        if (!booking) {
+                            enqueueSnackbar('Booking information not available', { variant: 'error' });
+                            return;
+                        }
+
+                        // Check if we have both driver and passenger info
+                        if (!booking.driver || !booking.passenger) {
+                            enqueueSnackbar('Booking participant information is incomplete', { variant: 'error' });
+                            return;
+                        }
+
+                        // Determine the chat partner
+                        let receiverId;
+                        if (booking.driver._id === loggedInUserId) {
+                            // If logged in user is the driver, chat with passenger
+                            receiverId = booking.passenger._id;
+                        } else if (booking.passenger._id === loggedInUserId) {
+                            // If logged in user is the passenger, chat with driver
+                            receiverId = booking.driver._id;
+                        } else {
+                            // This shouldn't normally happen
+                            enqueueSnackbar('You are not part of this booking', { variant: 'error' });
+                            return;
+                        }
+
+                        // Verify we have a valid receiver ID
+                        if (!receiverId) {
+                            enqueueSnackbar('Could not determine chat partner', { variant: 'error' });
+                            return;
+                        }
+
+                        // Navigate to chat with the receiver
+                        navigate(`/chat/${receiverId}`, {
+                            state: {
+                                bookingInfo: {
+                                    journeyId: booking.journey?._id,
+                                    from: booking.journey?.leaveFrom?.address,
+                                    to: booking.journey?.goingTo?.address,
+                                    date: booking.journey?.departureTime
+                                }
+                            }
+                        });
+                    }}
+                    className="px-3 py-1 hover:bg-blue-400 hover:text-white rounded bg-gray-300 text-gray-600"
                 >
                     Chat
                 </button>

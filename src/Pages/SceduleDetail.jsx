@@ -3,112 +3,126 @@ import { useEffect, useState } from 'react';
 import { calculateArrivalTime } from '../utils/timeUtils';
 import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import EventIcon from '@mui/icons-material/Event';
+import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
+import PersonIcon from '@mui/icons-material/Person';
 import axios from 'axios';
-// import { IoMdStar } from 'react-icons/io';
 
 // Subcomponent: Loading Indicator
 const LoadingSpinner = () => (
-    <div className="text-center py-8">
-        <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
-        <p className="mt-2">Loading journey details...</p>
+    <div className="flex flex-col items-center justify-center min-h-[50vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <p className="mt-4 text-gray-600">Loading journey details...</p>
     </div>
 );
 
 // Subcomponent: Error Display
 const ErrorDisplay = ({ error, onRetry }) => (
-    <div className="text-center py-8">
-        <div className="text-red-500 mb-4">{error}</div>
+    <div className="flex flex-col items-center justify-center min-h-[50vh] p-6 text-center">
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 max-w-md">
+            {error}
+        </div>
         <button
             onClick={onRetry}
-            className="text-blue-600 hover:underline"
+            className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors"
         >
-            Try again
+            Try Again
         </button>
     </div>
 );
 
 // Subcomponent: No Data Found
 const NoDataFound = ({ onNavigateHome }) => (
-    <div className="text-center py-8">
-        <p>No travel details found</p>
+    <div className="flex flex-col items-center justify-center min-h-[50vh] p-6">
+        <div className="bg-gray-100 border border-gray-300 px-4 py-3 rounded mb-4 max-w-md">
+            No travel details found
+        </div>
         <button
             onClick={onNavigateHome}
-            className="text-blue-600 hover:underline mt-2"
+            className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors"
         >
-            Back to home
+            Back to Home
         </button>
     </div>
 );
 
 // Subcomponent: Detail Item
-const DetailItem = ({ label, value }) => (
-    <div>
-        <h3 className="font-medium text-gray-700">{label}</h3>
-        <p className="text-gray-900">{value || 'N/A'}</p>
+const DetailItem = ({ icon, label, value }) => (
+    <div className="flex items-start gap-4 p-4 bg-white rounded-lg shadow-sm border border-gray-100">
+        <div className="p-2 bg-gray-50 rounded-full text-gray-500">
+            {icon}
+        </div>
+        <div>
+            <h3 className="text-sm font-medium text-gray-500">{label}</h3>
+            <p className="text-lg font-semibold text-gray-800 mt-1">
+                {value || 'N/A'}
+            </p>
+        </div>
     </div>
 );
 
 // Subcomponent: Journey Header
-const JourneyHeader = ({ from, to, onBack, user }) => (
-    <>
+const JourneyHeader = ({ from, to, onBack, user, rating }) => (
+    <div className="bg-gradient-to-r from-gray-400 to-gray-500 rounded-t-xl p-6 text-white">
         <button
             onClick={onBack}
-            className="mb-4 text-blue-600 hover:underline flex items-center gap-1"
+            className="flex items-center gap-2 mb-6 text-white hover:text-blue-100 transition-colors"
         >
-            <span>←</span>
+            <ArrowBackIcon />
             <span>Back to results</span>
         </button>
 
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-            <div className="p-6 border-b">
-                <h1 className="text-2xl font-bold text-gray-800 mb-4">Journey Details</h1>
-                <div className='flex items-start  uppercase'>
-                    <p className='font-bold  text-gray-800 text-sm'>Driver: {user}</p>
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+            <div>
+                <h1 className="text-2xl font-bold mb-2">Journey Details</h1>
+                <div className="flex items-center gap-3 mb-4">
+                    <div className="flex items-center">
+                        {Array.from({ length: 5 }, (_, index) =>
+                            index < Math.round(rating) ? (
+                                <StarIcon key={index} className="text-yellow-300 text-sm" />
+                            ) : (
+                                <StarBorderIcon key={index} className="text-yellow-300 text-sm" />
+                            )
+                        )}
+                    </div>
+                    <span className="text-sm text-blue-100">Driver: {user}</span>
                 </div>
-                <p className="text-gray-600 mt-1 flex flex-col">
-                    <p className='text-gray-400 font-semibold text-sm'>   {from || 'N/A'} </p>
-                    <p>To</p>
-                    <p className='text-gray-400 font-semibold text-sm'>{to || 'N/A'}</p>
-
-                </p>
             </div>
 
-
+            <div className="bg-white/10 p-4 rounded-lg backdrop-blur-sm">
+                <div className="flex flex-col items-center">
+                    <div className="text-sm text-blue-100">Route</div>
+                    <div className="text-lg font-semibold text-center">
+                        <div className="text-white">{from || 'N/A'}</div>
+                        <div className="text-blue-200 my-1">↓</div>
+                        <div className="text-white">{to || 'N/A'}</div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </>
+    </div>
 );
 
 // Subcomponent: Booking Footer
-const BookingFooter = ({ fare, onBook, rating }) => (
-    <div className="p-6 bg-gray-50 border-t">
-        <div className="flex justify-between items-center">
-            <div className="flex justify-center items-center font-bold text-gray-900">
-                Rating:
-                <div className="flex pl-2">
-                    {Array.from({ length: 5 }, (_, index) =>
-                        index < Math.round(rating) ? (
-                            <StarIcon key={index} className="text-yellow-600" />
-                        ) : (
-                            <StarBorderIcon key={index} className="text-yellow-400" />
-                        )
-                    )}
+const BookingFooter = ({ fare, onBook }) => (
+    <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4 shadow-lg">
+        <div className="container mx-auto max-w-4xl">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div className="flex items-center gap-4">
+                    <div className="text-lg font-bold text-gray-800">Total Fare:</div>
+                    <div className="text-2xl font-bold text-blue-600">
+                        {fare || '0.00'}
+                    </div>
                 </div>
-
-
+                <button
+                    onClick={onBook}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg transition-colors font-medium text-lg shadow-md hover:shadow-lg"
+                >
+                    Book This Journey
+                </button>
             </div>
-            <div>
-                <h3 className="font-medium text-gray-700">Total Fare</h3>
-                <p className="text-2xl font-bold text-gray-900">
-                    {fare || '0.00'}
-                </p>
-
-            </div>
-            <button
-                onClick={onBook}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors font-medium"
-            >
-                Book This Journey
-            </button>
         </div>
     </div>
 );
@@ -122,9 +136,6 @@ const ScheduleDetail = () => {
     const [error, setError] = useState(null);
     const BACKEND_API = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
     const token = localStorage.getItem('token');
-    console.log('token is', token)
-
-
 
     // Authentication check
     useEffect(() => {
@@ -143,11 +154,9 @@ const ScheduleDetail = () => {
                     `${BACKEND_API}/user/journey/${id}`,
                     {
                         headers: { Authorization: `Bearer ${token}` },
-                        timeout: 10000 // 10 second timeout
+                        timeout: 10000
                     }
                 );
-
-                console.log("Journey Response", response.data)
 
                 if (!response.data) throw new Error('Invalid response data');
                 setTravelDetails(response.data);
@@ -157,11 +166,7 @@ const ScheduleDetail = () => {
                     err.message ||
                     'Failed to load journey details'
                 );
-                console.error('API Error:', {
-                    error: err,
-                    endpoint: `${BACKEND_API}/user/get-journeyby-id/${id}`,
-                    status: err.response?.status
-                });
+                console.error('API Error:', err);
             } finally {
                 setLoading(false);
             }
@@ -179,57 +184,78 @@ const ScheduleDetail = () => {
     // No data state
     if (!travelDetails) return <NoDataFound onNavigateHome={() => navigate('/')} />;
 
-    // Main render
+    // Format duration
+    const formatDuration = (minutes) => {
+        if (!minutes) return "N/A";
+        const mins = parseInt(minutes.toString().replace('min', '').trim(), 10);
+        if (isNaN(mins)) return "N/A";
+        const hours = Math.floor(mins / 60);
+        const remainingMinutes = mins % 60;
+        return hours > 0 ? `${hours}h ${remainingMinutes}min` : `${remainingMinutes}min`;
+    };
+
     return (
-        <div className="container mx-auto p-4 max-w-4xl">
-            <JourneyHeader
-                from={travelDetails.leaveFrom.label}
-                to={travelDetails.goingTo.label}
-                user={travelDetails.userId.name}
-                onBack={() => navigate(-1)}
-            />
-
-
-            <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-
-
-                {/* <DetailItem label="User" value={travelDetails.userId.name} /> */}
-                <DetailItem label="Departure Time" value={travelDetails.departureTime} />
-                <DetailItem
-                    label="Arrival Time"
-                    value={calculateArrivalTime(travelDetails.departureTime, travelDetails.arrivalTime)}
+        <div className="bg-gray-50 min-h-screen pb-20"> {/* Extra padding for footer */}
+            <div className="container mx-auto max-w-4xl">
+                <JourneyHeader
+                    from={travelDetails.leaveFrom?.label}
+                    to={travelDetails.goingTo?.label}
+                    user={travelDetails.userId?.name}
+                    rating={travelDetails.userId?.rating || 0}
+                    onBack={() => navigate(-1)}
                 />
-                <DetailItem label="Vehicle Type" value={travelDetails.vehicleType} />
-                <DetailItem label="Available Seats" value={travelDetails.availableSeats} />
-                <DetailItem
-                    label="Departure Date"
-                    value={new Date(travelDetails.date).toLocaleDateString()}
-                />
-                <DetailItem
-                    label="Estimated Duration"
-                    value={
-                        (() => {
-                            if (!travelDetails.arrivalTime) return "N/A";
 
-                            // Extract just the number (remove "min" if present)
-                            const minutes = parseInt(travelDetails.arrivalTime.toString().replace('min', '').trim(), 10);
+                <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <DetailItem
+                        icon={<AccessTimeIcon />}
+                        label="Departure Time"
+                        value={travelDetails.departureTime}
+                    />
+                    <DetailItem
+                        icon={<AccessTimeIcon />}
+                        label="Arrival Time"
+                        value={calculateArrivalTime(travelDetails.departureTime, travelDetails.arrivalTime)}
+                    />
+                    <DetailItem
+                        icon={<DirectionsCarIcon />}
+                        label="Vehicle Type"
+                        value={travelDetails.vehicleType}
+                    />
+                    <DetailItem
+                        icon={<PersonIcon />}
+                        label="Available Seats"
+                        value={travelDetails.availableSeats}
+                    />
+                    <DetailItem
+                        icon={<EventIcon />}
+                        label="Departure Date"
+                        value={new Date(travelDetails.date).toLocaleDateString('en-US', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        })}
+                    />
+                    <DetailItem
+                        icon={<AccessTimeIcon />}
+                        label="Estimated Duration"
+                        value={formatDuration(travelDetails.arrivalTime)}
+                    />
+                </div>
 
-                            if (isNaN(minutes)) return "N/A";
-
-                            const hours = Math.floor(minutes / 60);
-                            const remainingMinutes = minutes % 60;
-
-                            return hours > 0
-                                ? `${hours}h ${remainingMinutes}min`
-                                : `${remainingMinutes}min`;
-                        })()
-                    } />
+                {travelDetails.additionalInfo && (
+                    <div className="p-6">
+                        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                            <h3 className="text-sm font-medium text-gray-500 mb-2">Additional Information</h3>
+                            <p className="text-gray-800">{travelDetails.additionalInfo}</p>
+                        </div>
+                    </div>
+                )}
             </div>
 
             <BookingFooter
                 fare={travelDetails.fareStart}
                 onBook={() => navigate('/booking', { state: { travelDetails } })}
-                rating={travelDetails.userId.rating}
             />
         </div>
     );

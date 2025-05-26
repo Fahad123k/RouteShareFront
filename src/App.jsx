@@ -17,6 +17,7 @@ import Booking from './Pages/Booking';
 import ScheduleDetail from "./Pages/SceduleDetail"
 import MyBookings from './Pages/MyBookings';
 import Admin from './Pages/Admin';
+import ChatPage from './Pages/ChatPage';
 
 
 function App() {
@@ -40,6 +41,7 @@ function App() {
         <Route path='/my-bookings' element={<MyBookings />} />
         <Route path='/schedule-details/:id' element={<ScheduleDetail />} />
         <Route path='/admin' element={<Admin />} />
+        <Route path="/chat/:chatId" element={<ChatPage />} />
 
         <Route path="*" element={<ErrorPage />} />
 
