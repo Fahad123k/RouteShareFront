@@ -18,6 +18,7 @@ import ScheduleDetail from "./Pages/SceduleDetail"
 import MyBookings from './Pages/MyBookings';
 import Admin from './Pages/Admin';
 import ChatPage from './Pages/ChatPage';
+import { Header } from './components/Header';
 
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
   return (
     <>
       <Navbar />
+      {/* <Header /> */}
       <Routes>
 
 

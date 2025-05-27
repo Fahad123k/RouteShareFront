@@ -7,7 +7,7 @@ import { NavLink } from "react-router";
 const Home = () => {
   return (
     <>
-      <div className="mt-[-100px] mb-6 relative">
+      <div className="mt-[-15px] mb-6 relative">
         <div className="relative">
           <Parallax
             bgImage={cover}
