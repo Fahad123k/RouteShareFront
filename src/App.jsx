@@ -18,7 +18,8 @@ import ScheduleDetail from "./Pages/SceduleDetail"
 import MyBookings from './Pages/MyBookings';
 import Admin from './Pages/Admin';
 import ChatPage from './Pages/ChatPage';
-import { Header } from './components/Header';
+import UpdateVehicle from './Pages/UpdateVehicle';
+
 
 
 function App() {
@@ -44,6 +45,7 @@ function App() {
         <Route path='/schedule-details/:id' element={<ScheduleDetail />} />
         <Route path='/admin' element={<Admin />} />
         <Route path="/chat/:chatId" element={<ChatPage />} />
+        <Route path="/update-vehicle/:id" element={<UpdateVehicle />} />
 
         <Route path="*" element={<ErrorPage />} />
 

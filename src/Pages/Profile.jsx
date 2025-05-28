@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSnackbar } from "notistack";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
@@ -18,7 +18,7 @@ const Profile = () => {
         const fetchUser = () => {
             const token = localStorage.getItem("token");
             const userdata = JSON.parse(localStorage.getItem("user"));
-            console.log("user data", userdata)
+            // console.log("user data", userdata)
             if (!token) {
                 enqueueSnackbar("Please Login!", { variant: "warning" });
                 navigate("/login");
@@ -27,6 +27,7 @@ const Profile = () => {
 
             if (userdata) {
                 setUser(userdata);
+                // console.log("userd data", userdata._id)
                 setUpdatedData(userdata);
             }
         };
@@ -173,6 +174,11 @@ const Profile = () => {
                             Save Changes
                         </button>
                     )}
+
+
+
+                    {/* iser info  {user} */}
+                    <Link className="rounded bg-amber-300 h-3 p-2" to={`/update-vehicle/${updatedData._id}`}>Update Vehicle details</Link>
 
                     <button
                         className="w-full mt-4 bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded"

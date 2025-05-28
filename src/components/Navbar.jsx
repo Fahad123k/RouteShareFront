@@ -195,7 +195,7 @@ const Navbar = () => {
             <NavLink
               to="/search"
               className={`flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600`}
-              activeClassName={`text-gray-600`}
+            // activeClassName={`text-gray-600`}
             >
               <IoIosSearch className={`mr-1 text-2xl text-gray-700 `} />
             </NavLink>
@@ -205,7 +205,7 @@ const Navbar = () => {
             <NavLink
               to="/publish"
               className={`flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600`}
-              activeClassName={`text-gray-600`}
+            // activeClassName={`text-gray-600`}
             >
               <CiCirclePlus className={`mr-1 text-2xl text-gray-700`} />
             </NavLink>
@@ -241,7 +241,7 @@ const Navbar = () => {
               <NavLink
                 to="/search"
                 className={`flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600`}
-                activeClassName={`text-gray-600`}
+              // activeClassName={`text-gray-600`}
               >
                 <IoIosSearch className={`mr-1 text-lg text-gray-700 `} />
                 <span className="text-gray-700 hover:bg-blue-50 hover:text-blue-600">Search</span>
