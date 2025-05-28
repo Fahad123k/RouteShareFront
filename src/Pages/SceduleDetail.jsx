@@ -10,6 +10,27 @@ import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import PersonIcon from '@mui/icons-material/Person';
 import axios from 'axios';
 
+
+
+
+
+const updateUserRating = async (userId, newRating, token) => {
+    const BACKEND_API = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
+    try {
+        const response = await axios.patch(
+            `${BACKEND_API}/user/updaterating/${userId}`,
+            { rating: newRating },
+            {
+                headers: { Authorization: `Bearer ${token}` },
+                timeout: 10000
+            }
+        );
+        return response.data;
+    } catch (err) {
+        throw err.response?.data?.message || err.message || 'Failed to update rating';
+    }
+};
+
 // Subcomponent: Loading Indicator
 const LoadingSpinner = () => (
     <div className="flex flex-col items-center justify-center min-h-[50vh]">
@@ -63,47 +84,61 @@ const DetailItem = ({ icon, label, value }) => (
     </div>
 );
 
-// Subcomponent: Journey Header
-const JourneyHeader = ({ from, to, onBack, user, rating }) => (
-    <div className="bg-gradient-to-r from-gray-400 to-gray-500 rounded-t-xl p-6 text-white">
-        <button
-            onClick={onBack}
-            className="flex items-center gap-2 mb-6 text-white hover:text-blue-100 transition-colors"
-        >
-            <ArrowBackIcon />
-            <span>Back to results</span>
-        </button>
+// Subcomponent: JourneyHeader
+const JourneyHeader = ({ from, to, onBack, user, rating, onRatingChange }) => {
+    const handleRatingClick = (newRating) => {
+        if (onRatingChange) {
+            onRatingChange(newRating);
+        }
+    };
 
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-            <div>
-                <h1 className="text-2xl font-bold mb-2">Journey Details</h1>
-                <div className="flex items-center gap-3 mb-4">
-                    <div className="flex items-center">
-                        {Array.from({ length: 5 }, (_, index) =>
-                            index < Math.round(rating) ? (
-                                <StarIcon key={index} className="text-yellow-300 text-sm" />
-                            ) : (
-                                <StarBorderIcon key={index} className="text-yellow-300 text-sm" />
-                            )
-                        )}
+    return (
+        <div className="bg-gradient-to-r from-gray-400 to-gray-500 rounded-t-xl p-6 text-white">
+            <button
+                onClick={onBack}
+                className="flex items-center gap-2 mb-6 text-white hover:text-blue-100 transition-colors"
+            >
+                <ArrowBackIcon />
+                <span>Back to results</span>
+            </button>
+
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+                <div>
+                    <h1 className="text-2xl font-bold mb-2">Journey Details</h1>
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="flex items-center">
+                            {Array.from({ length: 5 }, (_, index) => (
+                                <button
+                                    key={index}
+                                    onClick={() => handleRatingClick(index + 1)}
+                                    className="focus:outline-none"
+                                >
+                                    {index < Math.round(rating) ? (
+                                        <StarIcon className="text-yellow-300 text-sm hover:text-yellow-200" />
+                                    ) : (
+                                        <StarBorderIcon className="text-yellow-300 text-sm hover:text-yellow-200" />
+                                    )}
+                                </button>
+                            ))}
+                        </div>
+                        <span className="text-sm text-blue-100">Driver: {user}</span>
                     </div>
-                    <span className="text-sm text-blue-100">Driver: {user}</span>
                 </div>
-            </div>
 
-            <div className="bg-white/10 p-4 rounded-lg backdrop-blur-sm">
-                <div className="flex flex-col items-center">
-                    <div className="text-sm text-blue-100">Route</div>
-                    <div className="text-lg font-semibold text-center">
-                        <div className="text-white">{from || 'N/A'}</div>
-                        <div className="text-blue-200 my-1">↓</div>
-                        <div className="text-white">{to || 'N/A'}</div>
+                <div className="bg-white/10 p-4 rounded-lg backdrop-blur-sm">
+                    <div className="flex flex-col items-center">
+                        <div className="text-sm text-blue-100">Route</div>
+                        <div className="text-lg font-semibold text-center">
+                            <div className="text-white">{from || 'N/A'}</div>
+                            <div className="text-blue-200 my-1">↓</div>
+                            <div className="text-white">{to || 'N/A'}</div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-);
+    );
+};
 
 // Subcomponent: Booking Footer
 const BookingFooter = ({ fare, onBook }) => (
@@ -160,6 +195,7 @@ const ScheduleDetail = () => {
 
                 if (!response.data) throw new Error('Invalid response data');
                 setTravelDetails(response.data);
+                console.log(response.data)
             } catch (err) {
                 setError(
                     err.response?.data?.message ||
@@ -175,6 +211,44 @@ const ScheduleDetail = () => {
         if (id && token) fetchTravelDetails();
     }, [id, token, BACKEND_API]);
 
+    const handleRatingUpdate = async (newRating) => {
+        try {
+            if (!travelDetails?.userId?._id) {
+                throw new Error('Driver information not available');
+            }
+
+            // Optimistic UI update
+            setTravelDetails(prev => ({
+                ...prev,
+                userId: {
+                    ...prev.userId,
+                    rating: newRating
+                }
+            }));
+
+            // Call API to update rating
+            await updateUserRating(travelDetails.userId._id, newRating, token);
+
+            // Optional: Show success message
+            console.log('Rating updated successfully');
+        } catch (err) {
+            // Revert on error
+            setTravelDetails(prev => ({
+                ...prev,
+                userId: {
+                    ...prev.userId,
+                    rating: prev.userId.rating // revert to previous rating
+                }
+            }));
+
+            setError(
+                err.response?.data?.message ||
+                err.message ||
+                'Failed to update rating'
+            );
+            console.error('Rating update error:', err);
+        }
+    };
     // Loading state
     if (loading) return <LoadingSpinner />;
 
@@ -203,6 +277,7 @@ const ScheduleDetail = () => {
                     user={travelDetails.userId?.name}
                     rating={travelDetails.userId?.rating || 0}
                     onBack={() => navigate(-1)}
+                    onRatingChange={handleRatingUpdate}
                 />
 
                 <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">

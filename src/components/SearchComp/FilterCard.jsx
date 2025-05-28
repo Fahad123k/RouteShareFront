@@ -1,201 +1,161 @@
-import React from "react";
-import { FaRegCircle } from "react-icons/fa";
+import React, { useState } from "react";
 import { CiClock2 } from "react-icons/ci";
-
 import { FaCircleDollarToSlot } from "react-icons/fa6";
 import { FaPersonWalkingArrowLoopLeft } from "react-icons/fa6";
 import { CgSandClock } from "react-icons/cg";
-import { FaRegSquare } from "react-icons/fa";
+import { FaRegSquare, FaRegCheckSquare, FaRegCircle } from "react-icons/fa";
 
+function FilterCard({ onFilterChange }) {
+    // State for sort filters (radio button behavior - only one can be selected)
+    const [sortBy, setSortBy] = useState(null);
 
+    // State for departure time filters (checkbox behavior - multiple can be selected)
+    const [departureFilters, setDepartureFilters] = useState({
+        morning: false,
+        afternoon: false,
+        evening: false,
+        night: false
+    });
 
+    // Sort options
+    const sortOptions = [
+        { id: 'earliest', label: 'Earliest Departure', icon: <CiClock2 className="text-xl" /> },
+        { id: 'price', label: 'Lowest Price', icon: <FaCircleDollarToSlot className="text-xl" /> },
+        { id: 'distance', label: 'Close to pick up point', icon: <FaPersonWalkingArrowLoopLeft className="text-xl" /> },
+        { id: 'duration', label: 'Shortest Ride', icon: <CgSandClock className="text-xl" /> }
+    ];
 
+    // Departure time options
+    const departureOptions = [
+        { id: 'morning', label: 'Morning (6AM - 12PM)' },
+        { id: 'afternoon', label: 'Afternoon (12PM - 5PM)' },
+        { id: 'evening', label: 'Evening (5PM - 9PM)' },
+        { id: 'night', label: 'Night (9PM - 6AM)' }
+    ];
 
-function FilterCard() {
+    // Handle sort selection
+    const handleSortSelect = (id) => {
+        const newSort = sortBy === id ? null : id;
+        setSortBy(newSort);
+        if (onFilterChange) {
+            onFilterChange({
+                sort: newSort,
+                departureTimes: departureFilters
+            });
+        }
+    };
+
+    // Handle departure time toggle
+    const handleDepartureToggle = (id) => {
+        const newFilters = {
+            ...departureFilters,
+            [id]: !departureFilters[id]
+        };
+        setDepartureFilters(newFilters);
+        if (onFilterChange) {
+            onFilterChange({
+                sort: sortBy,
+                departureTimes: newFilters
+            });
+        }
+    };
+
+    // Clear all filters
+    const clearAllFilters = () => {
+        setSortBy(null);
+        setDepartureFilters({
+            morning: false,
+            afternoon: false,
+            evening: false,
+            night: false
+        });
+        if (onFilterChange) {
+            onFilterChange({
+                sort: null,
+                departureTimes: {
+                    morning: false,
+                    afternoon: false,
+                    evening: false,
+                    night: false
+                }
+            });
+        }
+    };
+
     return (
-
-        <div className="w-full max-w-3xl p-2 bg-white  sticky top-26 sm:p-8 dark:bg-gray-800 dark:border-gray-700  ">
-            <div className="flex items-center justify-between ">
+        <div className="w-full max-w-3xl p-2 bg-white sticky top-26 sm:p-8 dark:bg-gray-800 dark:border-gray-700">
+            {/* Sort By Section */}
+            <div className="flex items-center justify-between mb-4">
                 <h5 className="text-xl font-bold leading-none text-gray-900 dark:text-white">Sort by</h5>
-                <a href="#" className="text-sm font-medium text-gray-900  hover:underline ">
+                <button
+                    onClick={clearAllFilters}
+                    className="text-sm font-medium text-gray-900 hover:underline dark:text-gray-300"
+                >
                     Clear all
-                </a>
+                </button>
             </div>
-            <div className="flow-root">
-                <ul className=" divide-gray-200 dark:divide-gray-700">
 
-                    <li >
-                        <div className="flex items-center hover:bg-gray-100 h-12 hover:rounded-lg p-2">
-                            <div className="shrik-0 ">
-
-                                {/* <FaRegCircle className="text-xl" /> */}
-                                <input id="terms" aria-describedby="terms" type="checkbox" className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800" required="" />
-
-
+            <ul className="divide-y divide-gray-200 dark:divide-gray-700">
+                {sortOptions.map((option) => (
+                    <li key={option.id} className="py-2 sm:py-2">
+                        <button
+                            onClick={() => handleSortSelect(option.id)}
+                            className={`flex items-center w-full h-12 p-2 hover:bg-gray-100 hover:rounded-lg ${sortBy === option.id ? 'bg-blue-50 rounded-lg' : ''}`}
+                        >
+                            <div className="shrink-0">
+                                {sortBy === option.id ? (
+                                    <div className="w-4 h-4 rounded-full border-2 border-blue-500 flex items-center justify-center">
+                                        <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                                    </div>
+                                ) : (
+                                    <FaRegCircle className="text-xl text-gray-400" />
+                                )}
                             </div>
-                            <div className="flex-2 min-w-0  ms-4">
-                                <p className=" font-medium text-gray-900 truncate dark:text-white">
-                                    Earliest Departure
-                                </p>
-
-                            </div>
-                            <div className="flex-1 flex items-center justify-end text-base  font-semibold text-gray-900 dark:text-white">
-                                <CiClock2 className="text-xl" />
-                            </div>
-
-                        </div>
-                    </li>
-                    <li className="py-3 sm:py-3 ">
-                        <div className="flex items-center hover:bg-gray-100 p-2  h-12 hover:rounded-lg">
-                            <div className="shrik-0 ">
-
-                                <FaRegCircle className="text-xl" />
-
-                            </div>
-                            <div className="flex-2 min-w-0  ms-4">
-                                <p className=" font-medium text-gray-900 truncate dark:text-white">
-                                    Lowest Price
-                                </p>
-
-                            </div>
-                            <div className="flex-1  flex justify-end  items-center text-base font-semibold text-gray-900 dark:text-white">
-                                <FaCircleDollarToSlot className="text-xl" />
-                            </div>
-                        </div>
-                    </li>
-                    <li className="py-3 sm:py-3 ">
-                        <div className="flex items-center hover:bg-gray-100 p-2  h-12 hover:rounded-lg">
-                            <div className="shrink-0 ">
-
-                                <FaRegCircle className="text-xl" />
-
-                            </div>
-                            <div className="flex-2 min-w-0 ms-4">
+                            <div className="flex-1 min-w-0 ms-4 text-left">
                                 <p className="font-medium text-gray-900 truncate dark:text-white">
-                                    Close to the pick up point
+                                    {option.label}
                                 </p>
-
                             </div>
-                            <div className="flex-1 flex justify-end  items-center text-base font-semibold text-gray-900 dark:text-white">
-                                <FaPersonWalkingArrowLoopLeft className="text-xl" />
+                            <div className="flex items-center">
+                                {option.icon}
                             </div>
-                        </div>
+                        </button>
                     </li>
-                    <li className="py-3 sm:py-3 ">
-                        <div className="flex items-center hover:bg-gray-100 p-2  h-12 hover:rounded-lg">
-                            <div className="shrink-0 ">
+                ))}
+            </ul>
 
-                                <FaRegCircle className="text-xl" />
+            {/* Divider */}
+            <div className="w-full bg-gray-200 h-1 rounded-lg my-4"></div>
 
-                            </div>
-                            <div className="flex-2 min-w-0 ms-4">
-                                <p className=" font-medium text-gray-900 truncate dark:text-white">
-                                    Shortest Ride
-                                </p>
-
-                            </div>
-                            <div className="flex-1 flex justify-end items-center text-base font-semibold text-gray-900 dark:text-white">
-                                <CgSandClock className="text-xl" />
-                            </div>
-                        </div>
-                    </li>
-
-                </ul>
-            </div>
-            <div className="w-ful bg-gray-200  h-1 rounded-lg mt-4 mb-4"></div>
-            {/* divider ######################## */}
-
-
-            <div className="flex items-center justify-between ">
+            {/* Departure Time Section */}
+            <div className="flex items-center justify-between mb-4">
                 <h5 className="text-xl font-bold leading-none text-gray-900 dark:text-white">Departure time</h5>
-
             </div>
-            <div className="flow-root">
-                <ul role="list" className="divide-y divide-gray-200 dark:divide-gray-700">
 
-                    <li className=" ">
-                        <div className="flex items-center hover:bg-gray-100 h-12 hover:rounded-lg p-2">
-                            <div className="shrik-0 ">
-
-                                <FaRegSquare className="text-xl" />
-
+            <ul className="divide-y divide-gray-200 dark:divide-gray-700">
+                {departureOptions.map((option) => (
+                    <li key={option.id} className="py-2 sm:py-2">
+                        <button
+                            onClick={() => handleDepartureToggle(option.id)}
+                            className={`flex items-center w-full h-12 p-2 hover:bg-gray-100 hover:rounded-lg ${departureFilters[option.id] ? 'bg-blue-50 rounded-lg' : ''}`}
+                        >
+                            <div className="shrink-0">
+                                {departureFilters[option.id] ? (
+                                    <FaRegCheckSquare className="text-xl text-blue-500" />
+                                ) : (
+                                    <FaRegSquare className="text-xl text-gray-400" />
+                                )}
                             </div>
-                            <div className="flex-2 min-w-0  ms-4">
-                                <p className=" font-medium text-gray-900 truncate dark:text-white">
-                                    Earliest Departure
-                                </p>
-
-                            </div>
-                            <div className="flex-1 flex items-center justify-end text-base  font-semibold text-gray-900 dark:text-white">
-                                <CiClock2 className="text-xl" />
-                            </div>
-
-                        </div>
-                    </li>
-                    <li className="py-3 sm:py-3 ">
-                        <div className="flex items-center hover:bg-gray-100 p-2  h-12 hover:rounded-lg">
-                            <div className="shrik-0 ">
-
-                                <FaRegSquare className="text-xl" />
-
-                            </div>
-                            <div className="flex-2 min-w-0  ms-4">
-                                <p className=" font-medium text-gray-900 truncate dark:text-white">
-                                    Lowest Price
-                                </p>
-
-                            </div>
-                            <div className="flex-1  flex justify-end  items-center text-base font-semibold text-gray-900 dark:text-white">
-                                <FaCircleDollarToSlot className="text-xl" />
-                            </div>
-                        </div>
-                    </li>
-                    <li className="py-3 sm:py-3 ">
-                        <div className="flex items-center hover:bg-gray-100 p-2  h-12 hover:rounded-lg">
-                            <div className="shrink-0 ">
-
-                                <FaRegSquare className="text-xl" />
-
-                            </div>
-                            <div className="flex-2 min-w-0 ms-4">
+                            <div className="flex-1 min-w-0 ms-4 text-left">
                                 <p className="font-medium text-gray-900 truncate dark:text-white">
-                                    Close to the pick up point
+                                    {option.label}
                                 </p>
-
                             </div>
-                            <div className="flex-1 flex justify-end  items-center text-base font-semibold text-gray-900 dark:text-white">
-                                <FaPersonWalkingArrowLoopLeft className="text-xl" />
-                            </div>
-                        </div>
+                        </button>
                     </li>
-                    <li className="py-3 sm:py-3 ">
-                        <div className="flex items-center hover:bg-gray-100 p-2  h-12 hover:rounded-lg">
-                            <div className="shrink-0 ">
-
-                                <FaRegSquare className="text-xl" />
-
-                            </div>
-                            <div className="flex-2 min-w-0 ms-4">
-                                <p className=" font-medium text-gray-900 truncate dark:text-white">
-                                    Shortest Ride
-                                </p>
-
-                            </div>
-                            <div className="flex-1 flex justify-end items-center text-base font-semibold text-gray-900 dark:text-white">
-                                <CgSandClock className="text-xl" />
-                            </div>
-                        </div>
-                    </li>
-
-                </ul>
-            </div>
+                ))}
+            </ul>
         </div>
-
-
-
-
-
-
     );
 }
 

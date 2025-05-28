@@ -2,11 +2,24 @@ import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
+import { motion } from 'framer-motion';
+import { IoMdRefresh } from "react-icons/io";
+import {
+
+    FaComments         // For Messages
+} from 'react-icons/fa';
+import { PiPhoneIncomingBold, PiPhoneOutgoingBold } from "react-icons/pi";
+import { MdOutgoingMail } from "react-icons/md";
 
 import socket from '../socket'; // Ensure proper socket import
 
+
+
+
 const MyBookings = () => {
     const { enqueueSnackbar } = useSnackbar();
+
+
 
     const [activeTab, setActiveTab] = useState('myBookings');
     const [bookings, setBookings] = useState({
@@ -18,6 +31,8 @@ const MyBookings = () => {
         requestsReceived: true
     });
     const [socketConnected, setSocketConnected] = useState(false);
+
+
 
     const navigate = useNavigate();
     const BACKEND_API = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
@@ -76,10 +91,10 @@ const MyBookings = () => {
         socket.on('refresh-data', onRefreshData);
 
         // Don't forget to clean it up
-        return () => {
-            // ... other cleanups
-            socket.off('refresh-data', onRefreshData);
-        };
+        // return () => {
+        //     // ... other cleanups
+        //     socket.off('refresh-data', onRefreshData);
+        // };
 
         const onConnect = () => {
             setSocketConnected(true);
@@ -260,39 +275,97 @@ const MyBookings = () => {
         );
     }
 
-    // Tab configuration
+
     const tabs = [
-        { id: 'myBookings', label: 'My Requests' },
-        { id: 'requestsReceived', label: 'Received Requests' },
-        { id: 'chat', label: 'Messages' }
+        {
+            id: 'myBookings',
+            label: 'My Requests',
+            icon: <MdOutgoingMail className="w-5 h-5" />
+        },
+        {
+            id: 'requestsReceived',
+            label: 'Received Requests',
+            icon: <PiPhoneIncomingBold className="w-5 h-5" />
+
+
+        },
+        {
+            id: 'chat',
+            label: 'Messages',
+            icon: <FaComments className="w-5 h-5" />
+        }
     ];
+
 
     return (
         <div className="container mx-auto px-4 py-8 max-w-7xl">
-            <h1 className="text-3xl font-bold text-center mb-8">Your Bookings</h1>
+            <div className="flex  flex-col sm:flex-row-reverse  mx-2 text-center  items-center justify-between ">
 
-            {/* Connection status badge */}
-            <div className="flex justify-center mb-6">
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${socketConnected ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                    }`}>
-                    {socketConnected ? 'Live updates connected' : 'Reconnecting...'}
-                </span>
-            </div>
+                {/* Connection status badge */}
+                <div className="flex justify-center mb-6">
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${socketConnected ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}>
+                        {socketConnected ? 'Live updates connected' : 'Reconnecting...'}
+                    </span>
+                </div>
 
-            {/* Tabs */}
-            <div className="flex flex-wrap justify-center mb-8 gap-2">
-                {tabs.map(tab => (
-                    <button
-                        key={tab.id}
-                        className={`px-5 py-3 rounded-lg font-medium transition-all ${activeTab === tab.id
-                            ? 'bg-blue-400 text-white shadow-md'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                            }`}
-                        onClick={() => setActiveTab(tab.id)}
-                    >
-                        {tab.label}
-                    </button>
-                ))}
+
+                {/* Modern Pills Tabs with Icons */}
+
+
+                <div className="mb-8">
+                    {/* Desktop/Tablet - Horizontal Pills with Labels and Icons */}
+                    <div className="hidden sm:flex justify-center">
+                        <div className="inline-flex bg-gray-100 rounded-full p-1 shadow-inner relative">
+                            {tabs.map((tab) => (
+                                <button
+                                    key={tab.id}
+                                    className={`relative px-4 sm:px-6 py-2 sm:py-3 rounded-full font-medium text-sm transition-all duration-300 ease-in-out flex items-center gap-2 ${activeTab === tab.id
+                                        ? 'text-gray-800'
+                                        : 'text-gray-500 hover:text-gray-800'
+                                        }`}
+                                    onClick={() => setActiveTab(tab.id)}
+                                >
+                                    {activeTab === tab.id && (
+                                        <motion.span
+                                            layoutId="pill"
+                                            className="absolute inset-0 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full z-0"
+                                            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                                        />
+                                    )}
+                                    <span className="relative z-10">{tab.icon}</span>
+                                    <span className="hidden sm:inline relative z-10">{tab.label}</span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Mobile - Icon Only Pills */}
+                    <div className="sm:hidden flex justify-center space-x-2">
+                        {tabs.map((tab) => (
+                            <button
+                                key={tab.id}
+                                className={`p-3 rounded-full transition-all duration-300 ease-in-out ${activeTab === tab.id
+                                    ? 'bg-gradient-to-r from-blue-500 to-blue-400 text-white shadow-md'
+                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                    }`}
+
+                                onClick={() => setActiveTab(tab.id)
+
+                                }
+
+                                aria-label={tab.label}
+                            >
+
+
+
+
+                                {tab.icon}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
             </div>
 
             {/* Tab Content */}
@@ -365,8 +438,10 @@ const BookingList = ({ bookings, loading, type, onRefresh, onStatusChange, navig
                             Refreshing...
                         </>
                     ) : (
-                        'Refresh'
+
+                        <IoMdRefresh className="w-5 h-5" />
                     )}
+
                 </button>
             </div>
 
@@ -428,6 +503,51 @@ const BookingList = ({ bookings, loading, type, onRefresh, onStatusChange, navig
 
 // Subcomponent for individual booking rows
 const BookingRow = ({ booking, isReceivedRequests, onStatusChange, navigate }) => {
+
+
+
+    const handleChatClick = (booking) => {
+        const loggedInUserId = localStorage.getItem('userId');
+
+        let chatPartner, journeyInfo;
+
+        // Handle different booking types
+        if (isReceivedRequests) {
+            chatPartner = {
+                id: booking.passenger?._id || booking.passengerId,
+                name: booking.passenger?.name || 'Passenger'
+            };
+        } else {
+            chatPartner = {
+                id: booking.driver?._id || booking.driverId,
+                name: booking.driver?.name || 'Driver'
+            };
+        }
+
+        journeyInfo = {
+            id: booking.journey?._id || booking.journeyId,
+            from: booking.journey?.leaveFrom?.address || 'Unknown origin',
+            to: booking.journey?.goingTo?.address || 'Unknown destination',
+            date: booking.journey?.departureTime || new Date()
+        };
+
+        if (!chatPartner.id) {
+            enqueueSnackbar('Could not start chat: missing participant information', {
+                variant: 'error'
+            });
+            return;
+        }
+
+        navigate(`/chat/${chatPartner.id}`, {
+            state: {
+                bookingInfo: {
+                    ...journeyInfo,
+                    partnerName: chatPartner.name,
+                    bookingStatus: booking.status
+                }
+            }
+        });
+    };
     const { enqueueSnackbar } = useSnackbar();
     const statusColors = {
         pending: 'bg-yellow-100 text-yellow-800',
@@ -516,53 +636,7 @@ const BookingRow = ({ booking, isReceivedRequests, onStatusChange, navigate }) =
                 )}
 
                 <button
-                    onClick={() => {
-                        const loggedInUserId = localStorage.getItem('userId');
-
-                        // Check if essential data exists
-                        if (!booking) {
-                            enqueueSnackbar('Booking information not available', { variant: 'error' });
-                            return;
-                        }
-
-                        // Check if we have both driver and passenger info
-                        if (!booking.driver || !booking.passenger) {
-                            enqueueSnackbar('Booking participant information is incomplete', { variant: 'error' });
-                            return;
-                        }
-
-                        // Determine the chat partner
-                        let receiverId;
-                        if (booking.driver._id === loggedInUserId) {
-                            // If logged in user is the driver, chat with passenger
-                            receiverId = booking.passenger._id;
-                        } else if (booking.passenger._id === loggedInUserId) {
-                            // If logged in user is the passenger, chat with driver
-                            receiverId = booking.driver._id;
-                        } else {
-                            // This shouldn't normally happen
-                            enqueueSnackbar('You are not part of this booking', { variant: 'error' });
-                            return;
-                        }
-
-                        // Verify we have a valid receiver ID
-                        if (!receiverId) {
-                            enqueueSnackbar('Could not determine chat partner', { variant: 'error' });
-                            return;
-                        }
-
-                        // Navigate to chat with the receiver
-                        navigate(`/chat/${receiverId}`, {
-                            state: {
-                                bookingInfo: {
-                                    journeyId: booking.journey?._id,
-                                    from: booking.journey?.leaveFrom?.address,
-                                    to: booking.journey?.goingTo?.address,
-                                    date: booking.journey?.departureTime
-                                }
-                            }
-                        });
-                    }}
+                    onClick={() => handleChatClick(booking)}
                     className="px-3 py-1 hover:bg-blue-400 hover:text-white rounded bg-gray-300 text-gray-600"
                 >
                     Chat

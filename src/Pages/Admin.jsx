@@ -201,7 +201,7 @@ const Admin = () => {
                 <div className="px-6 py-4 border-b border-gray-200">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-800">User Management</h1>
+                            <h1 className="text-2xl font-bold text-gray-600">User Management</h1>
                             <p className="text-sm text-gray-500 mt-1">Admin dashboard for managing users and their journeys</p>
                         </div>
                         {isLoading && (

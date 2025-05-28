@@ -94,8 +94,8 @@ const TravelCard = ({ travel }) => {
                         <FaRegCircle className="text-sm" />
                     </div>
                     <div className="flex-col min-w-[105px] ">
-                        <p className="font-bold text-gray-700 text-sm">{travel.goingTo?.city || 'N/A'}</p>
                         <p className="font-bold text-gray-700 text-sm">{travel.leaveFrom?.city || 'N/A'}</p>
+                        <p className="font-bold text-gray-700 text-sm">{travel.goingTo?.city || 'N/A'}</p>
                     </div>
                 </div>
                 <div className="flex-1 text-right">

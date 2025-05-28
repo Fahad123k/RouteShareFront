@@ -17,99 +17,133 @@ const ChatPage = () => {
     const [typingTimeout, setTypingTimeout] = useState(null);
     const messagesEndRef = useRef(null);
     const inputRef = useRef(null);
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [isConnected, setIsConnected] = useState(false);
 
     const BACKEND_API = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
-
-    // Verify and refresh token
+    const userId = localStorage.getItem('userId');
     const token = localStorage.getItem('token');
-    if (!token) {
-        enqueueSnackbar('Please login to continue', { variant: 'error' });
-        navigate('/login');
-        return false;
-    }
 
-    // Initialize chat with token verification
     useEffect(() => {
+        if (!socket) return;
 
-        console.log('use param id', receiverId)
+        const onReceiveMessage = (message) => {
+            setMessages(prev => [...prev, {
+                ...message,
+                sender: message.senderId._id === userId ? 'me' : 'other',
+                timestamp: new Date(message.createdAt)
+            }]);
+            scrollToBottom();
+        };
+
+        const onUserTyping = ({ senderId }) => {
+            if (senderId === receiverId) {
+                setIsTyping(true);
+                clearTimeout(typingTimeout);
+                setTypingTimeout(setTimeout(() => setIsTyping(false), 2000));
+            }
+        };
+
+        socket.on('receive-message', onReceiveMessage);
+        socket.on('user-typing', onUserTyping);
+
+        return () => {
+            socket.off('receive-message', onReceiveMessage);
+            socket.off('user-typing', onUserTyping);
+        };
+    }, [socket, receiverId, userId]);
+
+
+    // Verify token function
+    const verifyToken = async () => {
+        // try {
+        //     const response = await axios.get(`${BACKEND_API}/auth/verify-token`, {
+        //         headers: { Authorization: `Bearer ${token}` }
+        //     });
+        //     return response.data.valid;
+        // } catch (error) {
+        //     enqueueSnackbar('Session expired. Please login again.', { variant: 'error' });
+        //     navigate('/login');
+        //     return false;
+        // }
+        return true;
+    };
+
+    useEffect(() => {
+        if (!token) {
+            enqueueSnackbar('Please login to continue', { variant: 'error' });
+            navigate('/login');
+            return;
+        }
+
+        // Replace your initChat function with this:
         const initChat = async () => {
+            if (!token) {
+                enqueueSnackbar('Please login to continue', { variant: 'error' });
+                navigate('/login');
+                return;
+            }
+
             setIsLoading(true);
-            // const isVerified = await verifyToken();
-            // if (!isVerified) return;
 
-            setIsAuthenticated(true);
             try {
-                // Fetch receiver details
-                const userRes = await axios.get(`${BACKEND_API}/user/${receiverId}`, {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`
-                    }
-                });
-
+                // 1. Fetch receiver details
+                const [userRes, chatRes] = await Promise.all([
+                    axios.get(`${BACKEND_API}/user/${receiverId}`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    }),
+                    axios.get(`${BACKEND_API}/user/messages`, {
+                        params: { receiverId },
+                        headers: { Authorization: `Bearer ${token}` }
+                    })
+                ]);
 
                 setReceiverName(userRes.data.name || 'User');
-
-                // Fetch chat history
-                const chatRes = await axios.get(`${BACKEND_API}/user/messages`, {
-                    params: {
-                        senderId: localStorage.getItem('userId'),
-                        receiverId
-                    },
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`
-                    }
-                });
                 setMessages(chatRes.data.map(msg => ({
                     ...msg,
-                    sender: msg.senderId === localStorage.getItem('userId') ? 'me' : 'other',
+                    sender: msg.senderId === userId ? 'me' : 'other',
                     timestamp: new Date(msg.createdAt)
                 })));
 
-                // Initialize socket connection
-                const newSocket = io(BACKEND_API, {
-                    withCredentials: true,
-                    reconnectionAttempts: 5,
-                    reconnectionDelay: 1000,
-                    auth: {
-                        token: localStorage.getItem('token')
-                    }
-                });
+                // Initialize socket only once
+                if (!socket) {
+                    const newSocket = io(BACKEND_API, {
+                        auth: { token },
+                        transports: ['websocket'],
+                        reconnection: true,
+                        reconnectionAttempts: 5,
+                        reconnectionDelay: 1000
+                    });
 
-                newSocket.on('connect', () => {
-                    newSocket.emit('register-user', localStorage.getItem('userId'));
-                });
+                    newSocket.on('connect', () => {
+                        setIsConnected(true);
+                        console.log('Socket connected:', newSocket.id);
+                        newSocket.emit('join-chat', { userId, receiverId });
+                        setSocket(newSocket);
+                    });
 
-                newSocket.on('disconnect', () => {
-                    enqueueSnackbar('Disconnected from chat', { variant: 'warning' });
-                });
+                    newSocket.on('disconnect', () => {
+                        setIsConnected(false);
+                        console.log('Socket disconnected');
+                    });
 
-                newSocket.on('connect_error', (err) => {
-                    if (err.message.includes("Authentication")) {
-                        enqueueSnackbar('Authentication failed. Please login again.', { variant: 'error' });
-                        navigate('/login');
-                    }
-                });
+                    newSocket.on('connect_error', (err) => {
+                        console.error('Connection error:', err);
+                        enqueueSnackbar('Connection error. Trying to reconnect...', { variant: 'error' });
+                    });
 
-                newSocket.on('receive-message', (data) => {
-                    setMessages(prev => [...prev, {
-                        ...data,
-                        sender: 'other',
-                        timestamp: new Date()
-                    }]);
-                });
-
-                newSocket.on('user-typing', (userId) => {
-                    if (userId === receiverId) {
-                        setIsTyping(true);
-                        clearTimeout(typingTimeout);
-                        setTypingTimeout(setTimeout(() => setIsTyping(false), 2000));
-                    }
-                });
-
-                setSocket(newSocket);
+                    newSocket.on('new-message', (message) => {
+                        console.log('Received message:', message);
+                        setMessages(prev => [...prev, {
+                            ...message,
+                            sender: message.senderId === userId ? 'me' : 'other',
+                            timestamp: new Date(message.createdAt || Date.now())
+                        }]);
+                        scrollToBottom();
+                    });
+                }
             } catch (error) {
+                console.error('Chat initialization error:', error);
                 if (error.response?.status === 401) {
                     enqueueSnackbar('Session expired. Please login again.', { variant: 'error' });
                     navigate('/login');
@@ -131,52 +165,75 @@ const ChatPage = () => {
         };
     }, [receiverId]);
 
-    // Send message with token verification
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
+
     const sendMessage = async () => {
-        if (!input.trim() || !socket) return;
+        const messageText = input.trim();
+        if (!messageText || !socket) return;
 
         try {
-            // Verify token before sending
-            const isVerified = await verifyToken();
-            if (!isVerified) return;
-
-            const message = {
-                from: localStorage.getItem('userId'),
-                to: receiverId,
-                text: input.trim(),
-                timestamp: new Date()
+            // Create temporary message for optimistic update
+            const tempId = Date.now();
+            const tempMessage = {
+                _id: tempId,
+                text: messageText,
+                senderId: userId,
+                receiverId,
+                createdAt: new Date(),
+                isOptimistic: true
             };
 
-            socket.emit('send-message', message, (response) => {
-                if (response?.error) {
-                    enqueueSnackbar('Failed to send message', { variant: 'error' });
+            // Optimistic update
+            setMessages(prev => [...prev, {
+                ...tempMessage,
+                sender: 'me',
+                timestamp: new Date()
+            }]);
+            setInput('');
+            scrollToBottom();
+
+            // Send via socket
+            socket.emit('send-message', {
+                senderId: userId,
+                receiverId,
+                text: messageText
+            }, (response) => {
+                if (response.success) {
+                    // Replace optimistic message with real one
+                    setMessages(prev => prev.map(msg =>
+                        msg._id === tempId ? {
+                            ...response.message,
+                            sender: 'me',
+                            timestamp: new Date(response.message.createdAt)
+                        } : msg
+                    ));
                 } else {
-                    setMessages(prev => [...prev, { ...message, sender: 'me' }]);
-                    setInput('');
+                    // Remove optimistic message if failed
+                    setMessages(prev => prev.filter(msg => msg._id !== tempId));
+                    enqueueSnackbar('Failed to send message', { variant: 'error' });
                 }
             });
+
+            // Stop typing indicator
+            socket.emit('typing', { receiverId, senderId: userId, isTyping: false });
         } catch (error) {
             enqueueSnackbar('Error sending message', { variant: 'error' });
         }
     };
 
-    // Typing indicators with token check
-    const handleInputChange = async (e) => {
+
+    const handleInputChange = (e) => {
         setInput(e.target.value);
         if (!socket) return;
 
-        try {
-            // const isVerified = await verifyToken();
-            // if (!isVerified) return;
-
-            if (e.target.value.length === 1) {
-                socket.emit('typing', receiverId);
-            } else if (e.target.value.length === 0) {
-                socket.emit('stop-typing', receiverId);
-            }
-        } catch (error) {
-            console.error('Typing indicator error:', error);
-        }
+        // Send typing indicator
+        const isCurrentlyTyping = e.target.value.length > 0;
+        socket.emit('typing-indicator', {
+            receiverId,
+            isTyping: isCurrentlyTyping
+        });
     };
 
 
@@ -203,6 +260,12 @@ const ChatPage = () => {
     }
     return (
         <div className="max-w-2xl mx-auto p-4 min-h-5 flex flex-col bg-gray-50">
+            {/* <div className="ml-3">
+                <h2 className="text-lg font-semibold">{receiverName}</h2>
+                <p className="text-xs text-gray-500">
+                    {isTyping ? 'typing...' : isConnected ? 'online' : 'connecting...'}
+                </p>
+            </div> */}
             {/* Chat Header */}
             <div className="bg-white rounded-t-lg p-4 shadow-sm flex items-center border-b">
                 <button
@@ -219,7 +282,10 @@ const ChatPage = () => {
                 <div className="ml-3">
                     <h2 className="text-lg font-semibold">{receiverName}</h2>
                     <p className="text-xs text-gray-500">
-                        {isTyping ? 'typing...' : 'online'}
+                        {/* {isTyping ? 'typing...' : 'online'} */}
+                        <p className="text-xs text-gray-500">
+                            {isTyping ? 'typing...' : isConnected ? 'online' : 'connecting...'}
+                        </p>
                     </p>
                 </div>
             </div>
